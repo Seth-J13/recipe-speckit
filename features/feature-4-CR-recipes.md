@@ -4,32 +4,68 @@
 **Branch pattern:** `feature/4-CR-recipes`
 **Status:** Draft
 **Created:** 2026-09-12
-**Input:** {One-line intent -- what prompted this features (the user description)}
-**Depends on:** [Feature X -- ...](feature-X-...md), ... <-- (omit if none)
+**Input:** Signed-in users manage private named recipes on one dashboard view; new recipes are added in a dialogue; signed-out users see published, un-editable recipes
+**Depends on:** [Feature 1 -- Menu Bar](feature-1-menu-bar.md), [Feature 2 -- User Authentication](feature-2-user-auth.md) <-- (omit if none)
 **Related:** `features/references...`, [ADR-NNNN](../docs/adr/NNNN-title.md) <-- optional
 
 ---
 
 ## User Stories
 
-### US-1.1: {Short title}
+### US-4.1: Add Recipe
 
-**As a** <role>
-**I want to** <capability>
-**So that** <benefit>
+**As a** signed in User
+**I want to** create named recipes (e.g. "Dave's Hot Chicken")
+**So that** I can add them to my recipes list
 
-**Priority:** PN (eg. P1 for most important)  
-**Independent test:** <how to verify this story alone, in one sentence> (eg. Submit valid registration and land on protected home with `user` in `localStorage`)
-**Acceptance scenarios:** see ### US-N.N (eg. ### US-1.1) under Acceptance Criteria
+**Priority:** P1
+**Independent test:** Open add-recipe dialog, create a recipe, it appears in the recipes view
+**Acceptance scenarios:** see ### US-4.1 under Acceptance Criteria
 
-### US-1.2: ...
-**As a**
-**I want to**
-**So that**
+### US-4.2: View Recipes
+**As a** signed in User
+**I want to** see a list of all my published and unpublished recipes on one screen
+**So that** I can see what recipes I have
 
-**Priority:** PN
-**Independent test:**
-**Acceptance scenarios:**
+**Priority:** P1
+**Independent test:** Dashboard loads a single list of recipes (no sidebar split), each recipe belongs to one card
+**Acceptance scenarios:** see ### US-4.2 under Acceptance Criteria
+
+### US-4.3: Default Recipe Details
+**As a** signed in User
+**I want to** see the details of a recipe like **Name**, **Servings**, **Time to make (in minutes)**, and **Actions**
+**So that** I can read them without changing screens
+
+**Priority:** P1
+**Independent test:** Card shows bolded details from **I want to** by default, expands to show **Ingredients** and **Steps** when interacted
+**Acceptance scenarios:** see ### US-4.3 under Acceptance Criteria
+
+### US-4.4: Manage Recipe Entry
+**As a** signed in User
+**I want** each Recipe to show **Export-as-PDF**, **Edit**, and **Delete** actions
+**So that** I can make changes to my recipe in another view
+
+**Priority:** P2
+**Independent test:** Each entry exposes Export-as-PDF, Edit, and Delete actions in all states of interaction in this Recipes view
+**Acceptance scenarios:** see ### US-4.4 under Acceptance Criteria
+
+### US-4.5: Private Recipes Only
+**As a** signed-in user
+**I want** my unpublished recipes visible only to me
+**So that** other users cannot read or modify my unpublished recipes
+
+**Priority:** P1
+**Independent test:** Cross-user unpublished-recipe access returns 404; GET /recipes/user/ never returns another user's unpublished recipes
+**Acceptance scenarios:** see ### US-4.5 under Acceptance Criteria
+
+### US-4.6: Public Recipes
+**As a** guest with no account
+**I want** everyone's published recipes to be visible to me
+**So that** I can see public recipes
+
+**Priority:** P2
+**Independent test:** Cross-user published-recipe access returns 200; GET /recipes/user/ only returns another user's published recipes
+**Acceptance scenarios:** see ### US-4.6 under Acceptance Criteria
 
 ---
 
