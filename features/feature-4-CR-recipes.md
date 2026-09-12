@@ -32,7 +32,7 @@
 **Independent test:** Dashboard loads a single list of recipes (no sidebar split), each recipe belongs to one card  
 **Acceptance scenarios:** see ### US-4.2 under Acceptance Criteria  
 
-### US-4.3: Default Recipe Details
+### US-4.3: See Recipe Details
 
 **As a** signed in User  
 **I want to** see the details of a recipe like **Name**, **Servings**, **Time to make (in minutes)**, and **Actions**  
@@ -72,28 +72,45 @@
 **Independent test:** Cross-user published-recipe access returns 200; GET /recipes/user/ only returns another user's published recipes  
 **Acceptance scenarios:** see ### US-4.6 under Acceptance Criteria  
 
+### US-4.7: Public Recipe Details
+
+**As a** guest with no account  
+**I want to** see the details of a recipe like **Name**, **Servings**, **Time to make (in minutes)**, and **Convert-to-PDF**  
+**So that** I can read them without changing screens  
+
+**Priority:** P1
+**Independent test:** Card shows bolded details from **I want to** by default, expands to show **Ingredients** and **Steps** when interacted  
+**Acceptance scenarios:** see ### US-4.7 under Acceptance Criteria  
+
+### US-4.8: Manage Recipe List
+
+**As a** guest with no account  
+**I want** each Published Recipe to show the **Export-as-PDF** action, but NOT the **Edit** and **Delete** actions  
+**So that** I can download a copy of each recipe  
+
+**Priority:** P3  
+**Independent test:** Each entry exposes the Export-as-PDF action in all states of interaction in this Recipes view  
+**Acceptance scenarios:** see ### US-4.8 under Acceptance Criteria  
+
 ---
 
 
 
 ## Requirements
 
-
-
 ### Functional Requirements
 
-
-
-#### eg. (**FR-001**: Users MUST authenticate with **username** + **password** (not email-only login).)
-
-
-
-#### The specifics on what it is supposed to do
-
-- **FR-001**: 
-- **FR-002**: <Users MUST be able to ...>
-- **FR-003**: <... MUST NOT ...>
-- etc...
+- **FR-001**: A valid session (`authenticate` middleware) on this view shows only the current user's published and unpublished recipes.
+- **FR-002**: A lack of a session on this view shows every user's published recipes.
+- **FR-003**: PUT, POST, and DELETE requests to /recipeapi/recipes/ and /recipeapi/recipes/:id MUST require authenticate.  
+- **FR-004**: GET /recipeapi/recipes/user/:userId MUST require authenticate.
+- **FR-005**: GET /recipeapi/recipes and GET /recipeapi/recipes/:id MUST NOT require a session.
+- **FR-006**: A recipe MUST belong to exactly one user for its entire lifetime; ownership MUST never change.
+- **FR-007**: Every database update, and delete MUST include `userId: req.user.id` in the `where` clause.
+- **FR-008**: On create, `userId` MUST be set from `req.user.id` only — ignore or strip any `userId` in the request body.
+- **FR-009**: List names MUST be trimmed before save; empty strings MUST be rejected.
+- **FR-010**: Lists MUST be ordered alphabetically by name in API responses.
+- **FR-011**: This feature MUST deliver recipe CRUD and a **single-view** recipes UI in `Dashboard.vue` (dialog-based add). No sidebar/main split. Recipe **Editing View** is Feature 5. CRUD **Ingredients**  is Feature 3.
 
 ---
 
