@@ -1,7 +1,7 @@
-# Feature: Recipe PDF Export
+# Subfeature 4.9: Recipe PDF Export
  
 ## Overview
-Export a single `Recipe` row — with its associated `RecipeStep`, `RecipeIngredient`, and `Ingredient` records — as a one-page PDF matching the reference layout in `recipeReport.pdf`.
+Export a single `Recipe` row — with its associated `RecipeStep`, `RecipeIngredient`, and `Ingredient` records — as a one-page PDF matching the reference layout in `recipeReport.pdf`. Related: [Feature 4 -- pdf-export](feature-4-pdf-export.md)
  
 ## Data Requirements
 Query the recipe by `id` with eager-loaded associations:
