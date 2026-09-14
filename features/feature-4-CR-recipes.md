@@ -35,7 +35,7 @@
 ### US-4.3: See Recipe Details
 
 **As a** signed in User  
-**I want to** see the details of a recipe like **Name**, **Servings**, **Time to make (in minutes)**, and **Actions**  
+**I want to** see the details of a recipe like **Name**, **Servings**, **Time to make (in minutes)**, **Actions**  
 **So that** I can read them without changing screens  
 
 **Priority:** P1
@@ -75,7 +75,7 @@
 ### US-4.7: Public Recipe Details
 
 **As a** guest with no account  
-**I want to** see the details of a recipe like **Name**, **Servings**, **Time to make (in minutes)**, and **Convert-to-PDF**  
+**I want to** see the details of a recipe like **Name**, **Servings**, **Time to make (in minutes)**, and **Export-as-PDF**  
 **So that** I can read them without changing screens  
 
 **Priority:** P1
@@ -88,9 +88,19 @@
 **I want** each Published Recipe to show the **Export-as-PDF** action, but NOT the **Edit** and **Delete** actions  
 **So that** I can download a copy of each recipe  
 
-**Priority:** P3  
+**Priority:** P2  
 **Independent test:** Each entry exposes the Export-as-PDF action in all states of interaction in this Recipes view  
 **Acceptance scenarios:** see ### US-4.8 under Acceptance Criteria  
+
+### US-4.9: Manage Recipe List
+
+**As** any User (with or without valid session)  
+**I want** to be able to **Export-as-PDF** on any recipes appropriately shown in the Recipes view  
+**So that** I can download a PDF version of the selected recipe  
+
+**Priority:** P3  
+**Independent test:** Each entry exposes Export-as-PDF in all states of interaction; picking Export-as-PDF downloads a PDF containing the Recipe name, its description, its serving number, its completion time (in minutes), its list of ingredients, and all its steps/instructions.  
+**Acceptance scenarios:** see ### US-4.9 under Acceptance Criteria 
 
 ---
 
@@ -108,9 +118,12 @@
 - **FR-006**: A recipe MUST belong to exactly one user for its entire lifetime; ownership MUST never change.
 - **FR-007**: Every database update, and delete MUST include `userId: req.user.id` in the `where` clause.
 - **FR-008**: On create, `userId` MUST be set from `req.user.id` only — ignore or strip any `userId` in the request body.
-- **FR-009**: List names MUST be trimmed before save; empty strings MUST be rejected.
-- **FR-010**: Lists MUST be ordered alphabetically by name in API responses.
-- **FR-011**: This feature MUST deliver recipe CRUD and a **single-view** recipes UI in `Dashboard.vue` (dialog-based add). No sidebar/main split. Recipe **Editing View** is Feature 5. CRUD **Ingredients**  is Feature 3.
+- **FR-009**: Recipe names MUST be trimmed before save; empty strings MUST be rejected.
+- **FR-010**: Recipes MUST be ordered alphabetically by name in API responses.
+- **FR-011**: All visible recipes MUST contain an Export-as-PDF option which downloads a PDF version of the recipe.
+- **FR-012**: This feature MUST deliver recipe CRUD and a **single-view** recipes UI in `Dashboard.vue` (dialog-based add). No sidebar/main split. Recipe **Editing View** is Feature 5. CRUD **Ingredients**  is Feature 3.
+- **FR-013**: Only authenticated users see the `edit` and `delete` options listed
+- **FR-014**: Selecting the `edit` option on a Recipe card takes an authenticated user to the /recipe/:id view where `id` is the id of the recipe which that user owns
 
 ---
 
@@ -118,23 +131,31 @@
 
 ## Assumptions
 
-- What already exists (eg. Feature 1 auth is on `dev`)
-- What you are deliberately not building yet
+- Feature 1 menu bar, feature 2 user auth, and session handling MUST be merged to `dev` before implementing this feature
+- Recipe adding uses **dialog-based** workflows (no split sidebar / main panel)
+- There is no modal or dialogue to confirm a recipe deletion
+- Recipe editing is outside the scope of this feature
 
 
 
 ## Edge Cases
 
-- Empty required field → …
-- Cross-user access → …
-- Duplicate / invalid input → …
+- All Recipe creation fields empty in dialog → cancel operation and close dialogue
+- One or more recipe creation fields empty in dialog but not all → confirmation button disabled
+- Empty or whitespace-only Recipe name → confirmation button disabled.
+- Invalid recipeId → `400`; unowned recipe → `404`.
+- Unauthenticated dashboard or `GET /recipeapi/recipes` → show all published recipes from all users instead
+- Duplicate / invalid input → `422` with helpful message beneath field where duplicate/invalid input is present
 
 
 
 ## Success Criteria
 
-- **SC-001**: Every Gherkin scenario has at least one automated test before merge
-- **SC-002**: 
+- **SC-001**: Every Gherkin scenario has at least one automated test before merge.
+- **SC-002**: Signed-in user can export, view, and delete owned recipes on one screen without seeing other users' data.
+- **SC-003**: Signed-in user can create new recipes on the same screen as `SC-002`.
+- **SC-004**: Signed-out user can export and view all published recipes from all users on the same screen as `SC-002`.
+- **SC-005**: `npm test` passes for recipe API and dashboard recipes-view behavior.
 
 ---
 
