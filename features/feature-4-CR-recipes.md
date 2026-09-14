@@ -25,7 +25,7 @@
 ### US-4.2: View Recipes
 
 **As a** signed in User  
-**I want to** see a list of all my published and unpublished recipes on one screen  
+**I want to** see a list of ONLY published and unpublished recipes **owned by me** on one screen  
 **So that** I can see what recipes I have  
 
 **Priority:** P1  
@@ -100,7 +100,17 @@
 
 **Priority:** P3  
 **Independent test:** Each entry exposes Export-as-PDF in all states of interaction; picking Export-as-PDF downloads a PDF containing the Recipe name, its description, its serving number, its completion time (in minutes), its list of ingredients, and all its steps/instructions.  
-**Acceptance scenarios:** see ### US-4.9 under Acceptance Criteria 
+**Acceptance scenarios:** see ### US-4.9 under Acceptance Criteria  
+
+### US-4.10: Manage Recipe List
+
+**As a** signed-in user  
+**I want to** be able to delete my recipes  
+**So that** I can remove unwanted recipes from my list  
+
+**Priority:** P2  
+**Independent test:** Select **Delete** option, recipe is removed from database, recipe no longer appears in view   
+**Acceptance scenarios:** see ### US-4.10 under Acceptance Criteria 
 
 ---
 
@@ -163,11 +173,96 @@
 
 ## Data Ownership & Isolation (foundation)
 
-Feature 1 establishes identity; Features 2–3 enforce per-user data boundaries.
+Each user owns their recipes exclusively. Another authenticated user must not be able to view, rename, or delete them.
+Unauthenticated users (guests) may view all users' published recipes.
 
-- Each user account is a separate tenant boundary for todo lists and items.
+- Each user account is a separate tenant boundary for recipes.
 - No API in this feature returns another user's profile or session.
-- Later features must never expose lists or todos across users — not in list responses, detail views, or error messages that confirm another user's resource exists.
+- Later features must never expose unpublished recipes across users — not in recipe responses, detail views, or error messages that confirm another user's unpublished resource exists.
+
+Each user owns their lists exclusively. Another authenticated user must not be able to view, rename, or delete them.
+
+| Rule | Requirement |
+|------|-------------|
+| **Read scope** | Authenticated `GET /recipeapi/recipes` returns only recipes where `userId = req.user.id`. Unauthenticated `GET /recipeapi/recipes` returns recipes where `isPublished = true`. |
+| **Write scope** | `PUT` and `DELETE` apply only when the recipe row matches both `id` and `req.user.id`. |
+| **Create scope** | New recipes are always owned by the authenticated user. |
+| **Cross-user access** | If a recipe belongs to another user, respond with `404` — never `403` (do not confirm the list exists). |
+| **UI scope** | The recipes view shows only recipes returned by `GET /recipeapi/recipes`. |
+| **Implementation** | Use a shared helper (e.g. `getAccessibleRecipeOrNull(req, recipeId)`) in `app/authorization/` — do not duplicate scope logic in controllers. |
+
+---
+
+## API Requirements
+
+| Method | Endpoint | Auth | Purpose |
+|--------|----------|------|---------|
+| `GET` | `/recipeapi/recipes` | No | Fetch all recipes for the authenticated user; Fetch all published recipes for the unauthenticated user |
+| `POST` | `/recipeapi/recipes` | Yes | Create a new list |
+| `PUT` | `/recipeapi/recipes/:recipeId` | Yes | Update a list |
+| `DELETE` | `/recipeapi/recipes/:recipeId` | Yes | Delete a list owned by the caller |
+
+Unpublished recipes are visible only to their owner. Authenticated owner-scoped endpoints
+return only the current user's recipes; access to another user's unpublished recipe returns `404`.
+Published recipes are readable by anyone without a session via `GET /recipeapi/recipes`
+and `GET /recipeapi/recipes/:id` (HTTP 200). Those public reads MUST never include
+unpublished recipes.
+
+**Create list request body:**
+```json
+{
+    "id": 2,
+    "name": "name",
+    "description": "description",
+    "servings": 2,
+    "time": "30",
+    "isPublished": false,
+    "userId": 2
+}
+```
+
+**List success response** (`200` / `201`):
+```json
+{
+    "id": 2,
+    "name": "name",
+    "description": "description",
+    "servings": 2,
+    "time": "30",
+    "isPublished": false,
+    "userId": 2,
+    "updatedAt": "2026-09-14T14:28:04.080Z",
+    "createdAt": "2026-09-14T14:28:04.080Z"
+}
+```
+
+**Error response:** `{ "message": "Human-readable explanation." }` with appropriate HTTP status.  
+**Not found / not owned:** `404` (do not use `403`).
+
+---
+
+## Screen Requirements
+
+### [View: Application Dashboard] — route name `home`
+Replaces the Feature 1 placeholder home page. **Single Vue view** (`Dashboard.vue`) — no sidebar / main-panel split.
+
+**Lists view (this feature)**
+*   Heading: **My Lists**
+*   Primary action: **+ New List** opens a `<v-dialog>` with a name `<v-text-field>` and **Create** / **Cancel**. Use class `oc-cta` on **Create** and **+ New List** (per [ui-style-system.mdc](../../.cursor/rules/ui-style-system.mdc)).
+*   Display owned lists as rows (e.g. `<v-list>` or table): each row shows the **list name** and icon actions:
+    *   **Edit** icon — opens rename `<v-dialog>` pre-filled with current name; **Save** / **Cancel**
+    *   **Delete** icon — opens confirmation `<v-dialog>`
+    *   *(Feature 3 adds an **Items** icon on each row — not in Feature 2)*
+*   Icon-only row actions use `size="small"` and accessible `aria-label`s (**Edit list**, **Delete list**).
+*   **Empty state:** **"No lists yet. Create your first list."** when the user has zero lists.
+*   **Loading state:** skeleton or progress indicator while lists are fetching.
+*   **Error state:** `<v-alert type="error">` for API failures.
+
+**App chrome**
+*   Introduce `MenuBar` in this feature (not present in Feature 1): signed-in user's name and **Sign out**.
+*   `MenuBar` is hidden on login and register routes.
+
+**Implementation note:** one route/view for lists; list CRUD dialogs are child components or inline `<v-dialog>` blocks in `Dashboard.vue` unless the team splits presentational dialogs later.
 
 ---
 
