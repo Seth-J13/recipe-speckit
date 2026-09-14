@@ -414,24 +414,13 @@ Replaces the Feature 2 placeholder home page. **Single Vue view** (`Dashboard.vu
 - **And** {additional response}
 - **And**  
 
-### US-4.8: Manage Recipe List
-
-#### Scenario: {What is happening or has happend}
-
-- **Given** {Where are you on the website?}
-- **When** {Main action?}
-- **And** {What additional action did you take?}
-- **Then** {Website response}
-- **And** {additional response}
-- **And**  
-
-### US-4.9: Manage Recipe List
+### US-4.8: Export Option
 
 #### Scenario: export-to-pdf icon selected
 
 - **Given** I am a signed-in user viewing my list of owned recipes  
 - **When** I select the `Export-as-PDF` icon  
-- **Then** a PDF file is generated via [Subfeature 4.1 -- pdf-export](subfeature-4-1-pdf-export.md) information  
+- **Then** a PDF file is generated via [story 4.9 -- pdf-export](story-4-9-pdf-export.md) information  
 - **And** a file-picker dialog opens to download this generated PDF to my computer  
 - **And** this file's default name is `recipeReport.pdf`  
 - **And** the browser/OS handles the rest
@@ -443,6 +432,17 @@ Replaces the Feature 2 placeholder home page. **Single Vue view** (`Dashboard.vu
 - **And** I cancel the operation while the file-picker dialog is open/active  
 - **Then** the PDF file is not saved to my computer  
 - **And** the PDF file is discarded from the app  
+
+### US-4.9: Delete Recipe
+
+#### Scenario: export-to-pdf icon selected
+
+- **Given** {Where are you on the website?}
+- **When** {Main action?}
+- **And** {What additional action did you take?}
+- **Then** {Website response}
+- **And** {additional response}
+- **And**  
 
 ---
 
