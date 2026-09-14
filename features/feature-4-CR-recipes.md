@@ -82,35 +82,25 @@
 **Independent test:** Card shows bolded details from **I want to** by default, expands to show **Ingredients** and **Steps** when interacted  
 **Acceptance scenarios:** see ### US-4.7 under Acceptance Criteria  
 
-### US-4.8: Manage Recipe List
+### US-4.8: Export Option
 
-**As a** guest with no account  
-**I want** each Published Recipe to show the **Export-as-PDF** action, but NOT the **Edit** and **Delete** actions  
-**So that** I can download a copy of each recipe  
-
-**Priority:** P2  
-**Independent test:** Each entry exposes the Export-as-PDF action in all states of interaction in this Recipes view  
-**Acceptance scenarios:** see ### US-4.8 under Acceptance Criteria  
-
-### US-4.9: Manage Recipe List
-
-**As** any User (with or without valid session)  
+**As** any User (authenticated or not authenticated)  
 **I want** to be able to **Export-as-PDF** on any recipes appropriately shown in the Recipes view  
 **So that** I can download a PDF version of the selected recipe  
 
 **Priority:** P3  
-**Independent test:** Each entry exposes Export-as-PDF in all states of interaction; picking Export-as-PDF downloads a PDF containing the Recipe name, its description, its serving number, its completion time (in minutes), its list of ingredients, and all its steps/instructions.  
-**Acceptance scenarios:** see ### US-4.9 under Acceptance Criteria  
+**Independent test:** Each entry exposes Export-as-PDF in all states of interaction on this view; picking Export-as-PDF downloads a PDF containing the Recipe name, its description, its serving number, its completion time (in minutes), its list of ingredients, and all its steps/instructions.  
+**Acceptance scenarios:** see ### US-4.8 under Acceptance Criteria  
 
-### US-4.10: Manage Recipe List
+### US-4.9: Manage Recipe List
 
 **As a** signed-in user  
 **I want to** be able to delete my recipes  
 **So that** I can remove unwanted recipes from my list  
 
 **Priority:** P2  
-**Independent test:** Select **Delete** option, recipe is removed from database, recipe no longer appears in view   
-**Acceptance scenarios:** see ### US-4.10 under Acceptance Criteria 
+**Independent test:** Select **Delete** icon, recipe is removed from database, recipe no longer appears in view   
+**Acceptance scenarios:** see ### US-4.9 under Acceptance Criteria 
 
 ---
 
@@ -130,10 +120,10 @@
 - **FR-008**: On create, `userId` MUST be set from `req.user.id` only — ignore or strip any `userId` in the request body.
 - **FR-009**: Recipe names MUST be trimmed before save; empty strings MUST be rejected.
 - **FR-010**: Recipes MUST be ordered alphabetically by name in API responses.
-- **FR-011**: All visible recipes MUST contain an Export-as-PDF option which downloads a PDF version of the recipe.
+- **FR-011**: All visible recipes MUST contain an Export-as-PDF icon which downloads a PDF version of the recipe.
 - **FR-012**: This feature MUST deliver recipe CRUD and a **single-view** recipes UI in `Dashboard.vue` (dialog-based add). No sidebar/main split. Recipe **Editing View** is Feature 5. CRUD **Ingredients**  is Feature 3.
 - **FR-013**: Only authenticated users see the `edit` and `delete` options listed
-- **FR-014**: Selecting the `edit` option on a Recipe card takes an authenticated user to the /recipe/:id view where `id` is the id of the recipe which that user owns
+- **FR-014**: Selecting the `edit` icon on a Recipe card takes an authenticated user to the /recipe/:id view where `id` is the id of the recipe which that user owns
 
 ---
 
@@ -208,27 +198,27 @@ Published recipes are readable by anyone without a session via `GET /recipeapi/r
 and `GET /recipeapi/recipes/:id` (HTTP 200). Those public reads MUST never include
 unpublished recipes.
 
-**Create list request body:**
+**Create recipe request body:**
 ```json
 {
     "id": 2,
     "name": "name",
     "description": "description",
     "servings": 2,
-    "time": "30",
+    "time": 30,
     "isPublished": false,
     "userId": 2
 }
 ```
 
-**List success response** (`200` / `201`):
+**Recipe success response** (`200` / `201`):
 ```json
 {
     "id": 2,
     "name": "name",
     "description": "description",
     "servings": 2,
-    "time": "30",
+    "time": 30,
     "isPublished": false,
     "userId": 2,
     "updatedAt": "2026-09-14T14:28:04.080Z",
@@ -248,7 +238,7 @@ Replaces the Feature 2 placeholder home page. **Single Vue view** (`Dashboard.vu
 
 **Recipes view (this feature)**
 *   Heading: **Recipes**
-*   Primary action: **+ New Recipe** opens a `<v-dialog>` with a name `<v-text-field>` and **Create** / **Cancel**. Use class `oc-cta` on **Create** and **+ New Recipe** (per [ui-style-system.mdc](../../.cursor/rules/ui-style-system.mdc)).
+*   Primary action: **NEW** opens a `<v-dialog>` with a name `<v-text-field>` and **Create** / **Cancel**. Use class `oc-cta` on **Create** and **NEW** (per [ui-style-system.mdc](../../.cursor/rules/ui-style-system.mdc)).
 *   Display owned recipes as cards (e.g. `<v-card>`): each row shows the **Recipe Name** and icon actions:
     *   **PDF** icon — exports the selected recipe as a pdf file and opens a file picker window to save to a location
     *   **Edit** icon — changes URI to `/recipe/:id` where `:id` is the recipeId of the selected card
@@ -266,7 +256,7 @@ Replaces the Feature 2 placeholder home page. **Single Vue view** (`Dashboard.vu
 
 ## Key Entities
 
-- **User**: registered account (name, email, username, role); owns future lists and todos.
+- **User**: registered account (name, email, username, role); owns future recipes.
 - **Session**: server-side record tying a JWT token to a user; expires after 24 hours.
 
 ---
@@ -275,47 +265,83 @@ Replaces the Feature 2 placeholder home page. **Single Vue view** (`Dashboard.vu
 
 ## Data Model Requirements
 
+### `recipes` table
 
 
-### Look under ./backend/app/models/(file name).js
-
-- This shows the table you will need to model
-
-
-
-## VVV Example table (Change or Delete) VVV
-
-
-
-### `users` table
-
-
-| Field      | Type        | Rules                              |
-| ---------- | ----------- | ---------------------------------- |
-| `id`       | INTEGER PK  | Auto-increment                     |
-| `fName`    | STRING      | Required                           |
-| `lName`    | STRING      | Required                           |
-| `email`    | STRING      | Required, unique                   |
-| `username` | STRING(100) | Required, unique; stored lowercase |
-| `password` | STRING(255) | Required; bcrypt hash only         |
-| `role`     | STRING(20)  | Default `worker`                   |
-
-
-
-
-## ^^^ (Change or Delete) ^^^
+| Field        | Type         | Rules                      |
+| ------------ | ------------ | -------------------------- |
+| `id`         | INTEGER PK   | Auto-increment             |
+| `name`       | VARCHAR(100) | Nullable                   |
+| `description`| VARCHAR(255) | Nullable                   |
+| `servings`   | INTEGER      | Required                   |
+| `time`       | DATETIME     | Required                   |
+| `isPublished`| TINYINT(1)   | Required                   |
+| `createdAt`  | DATETIME     | Default CURRENT_TIMESTAMP  |
+| `updatedAt`  | DATETIME     | Default CURRENT_TIMESTAMP  |
+| `userId`     | INTEGER      | Foreign Key to users table |
 
 ---
-
-
 
 ## Acceptance Criteria (Gherkin)
 
 
+### US-4.1: Add Recipe
 
-### US-1.1 — {Related Functional Requirement}
+#### Scenario: signed in user hits the `NEW` button
 
+- **Given** I am authenticated and am viewing the Recipes view  
+- **When** I interact with the `NEW` button  
+- **Then** The `Add Recipe` modal appears in the center of the screen  
+- **And** I can see the title `Add Recipe` in the `Add Recipe` modal
+- **And** I can see a text input field called `Name`  
+- **And** I can see an integer input field called `Number of Servings` whose default is 2  
+- **And** I can see an integer input field called `Time to Make (in minutes)` whose default is 30  
+- **And** I can see a text area field called `Description`  
+- **And** I can see a toggle switch labeled `Publish?` whose default is set to `No` (off)  
+- **And** I can see `CLOSE` and `ADD RECIPE` buttons  
 
+#### Scenario: Interacting with Servings and Time input fields
+
+- **Given** I am viewing the `Add Recipe` modal  
+- **When** I hover over or select the `Number of Servings` or `Time to Make (in minutes)` input fields  
+- **Then** I can either click up or down arrows to the right of the field to increment or decrement the value inside the field respectively or input an integer myself  
+- **And** the incremented or decremented values reflect realtime in the values of the input field  
+
+#### Scenario: Interacting with Publish switch
+
+- **Given** I am viewing the `Add Recipe` modal  
+- **When** I interact with the `Publish?` toggle switch anywhere in its element  
+- **Then** the toggle switch switches to `Yes` (on) if it was previously off  
+- **And** the toggle switch switches to `No` (off) if it was previously on  
+- **And** the state of the switch (`Yes`/`No`) is shown to the right of the word `Publish?`  
+
+#### Scenario: Interacting with modal buttons
+
+- **Given** I am viewing the `Add Recipe` modal  
+- **When** I press the `CLOSE` button  
+- **Then** all the input fields are cleared  
+- **And** the `Add Recipe` modal closes  
+- **And** no requests are sent to the API  
+
+#### Scenario: Interacting with modal buttons
+
+- **Given** I am viewing the `Add Recipe` modal  
+- **When** I press the `ADD RECIPE` button  
+- **And** either the `Number of Servings` or the `Time to Make (in minutes)` integer field is empty  
+- **Then** all the input fields are cleared  
+- **And** the `Add Recipe` modal closes  
+- **And** no requests are sent to the API  
+
+#### Scenario: Interacting with modal buttons
+
+- **Given** I am viewing the `Add Recipe` modal  
+- **When** I press the `ADD RECIPE` button  
+- **And** all input/integer fields and text areas have valid input  
+- **Then** a `PUT` request is sent to the API whose body contains the data from the `Add Recipe` modal and whose format follows the **Create recipe request body**   
+- **And** the `Add Recipe` modal closes  
+- **And** the list of Recipe cards refreshes without the window/page refreshing  
+
+### US-4.2: View Recipes
 
 #### Scenario: {What is happening or has happend}
 
@@ -324,50 +350,93 @@ Replaces the Feature 2 placeholder home page. **Single Vue view** (`Dashboard.vu
 - **And** {What additional action did you take?}
 - **Then** {Website response}
 - **And** {additional response}
-- **And** 
-- **etc...**
+- **And**  
 
+### US-4.3: See Recipe Details
 
+#### Scenario: {What is happening or has happend}
 
-## VVV Example AC (Change or Delete) VVV
+- **Given** {Where are you on the website?}
+- **When** {Main action?}
+- **And** {What additional action did you take?}
+- **Then** {Website response}
+- **And** {additional response}
+- **And**  
 
+### US-4.4: Manage Recipe List
 
+#### Scenario: {What is happening or has happend}
 
-#### Scenario: User submits registration with missing email
+- **Given** {Where are you on the website?}
+- **When** {Main action?}
+- **And** {What additional action did you take?}
+- **Then** {Website response}
+- **And** {additional response}
+- **And**  
 
-- **Given** I am on the registration page
-- **When** I leave the email field empty
-- **And** I submit the form
-- **Then** inline validation blocks the request
-- **And** I see the message **"Email is required."**
-- **And** no API request is sent
+### US-4.5: Private Recipes Only
 
+#### Scenario: {What is happening or has happend}
 
+- **Given** {Where are you on the website?}
+- **When** {Main action?}
+- **And** {What additional action did you take?}
+- **Then** {Website response}
+- **And** {additional response}
+- **And**  
 
-## ^^^ (Change or Delete) ^^^
+### US-4.6: Public Recipes
 
----
+#### Scenario: {What is happening or has happend}
 
+- **Given** {Where are you on the website?}
+- **When** {Main action?}
+- **And** {What additional action did you take?}
+- **Then** {Website response}
+- **And** {additional response}
+- **And**  
 
+### US-4.7: Public Recipe Details
 
-### US-N.2 — {Related Functional Requirement}
+#### Scenario: {What is happening or has happend}
 
+- **Given** {Where are you on the website?}
+- **When** {Main action?}
+- **And** {What additional action did you take?}
+- **Then** {Website response}
+- **And** {additional response}
+- **And**  
 
+### US-4.8: Manage Recipe List
 
-#### Scenario:
+#### Scenario: {What is happening or has happend}
 
-- **Given** 
-- **And** 
-- **When** 
-- **And** 
-- **Then** 
-- **And** 
-- **And**
-- **And**
+- **Given** {Where are you on the website?}
+- **When** {Main action?}
+- **And** {What additional action did you take?}
+- **Then** {Website response}
+- **And** {additional response}
+- **And**  
 
----
+### US-4.9: Manage Recipe List
 
+#### Scenario: {What is happening or has happend}
 
+- **Given** {Where are you on the website?}
+- **When** {Main action?}
+- **And** {What additional action did you take?}
+- **Then** {Website response}
+- **And** {additional response}
+- **And**  
 
-### etc...
+### US-4.10: Manage Recipe List
+
+#### Scenario: {What is happening or has happend}
+
+- **Given** {Where are you on the website?}
+- **When** {Main action?}
+- **And** {What additional action did you take?}
+- **Then** {Website response}
+- **And** {additional response}
+- **And**  
 
