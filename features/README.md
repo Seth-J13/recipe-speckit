@@ -5,3 +5,9 @@ The full Recipe SpecKit project guide (install, write features, add tests) lives
 Add rows to the **Feature catalog** in [../README.md §2.3](../README.md#23-feature-catalog) when you create each `feature-N-*.md` file.
 
 **Methodology:** [framework.md](./framework.md) · [writing-feature-requirements.md](./writing-feature-requirements.md) · [writing-feature-design.md](./writing-feature-design.md)
+
+## Feature Catalog
+
+| ID | File | Branch | Depends on |
+|----|------|--------|------------|
+| -- |[feature 5](../features/feature-5-recipe-details-management.md) | feature/5-recipe-details-management | 1,2,3,4 |
