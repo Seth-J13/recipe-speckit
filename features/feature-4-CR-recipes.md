@@ -1,4 +1,4 @@
-# Feature: Create and Read Recipes
+# Feature: Create, Read, and Delete Recipes
 
 **Feature ID:** 4
 **Branch pattern:** `feature/4-CR-recipes`
@@ -86,13 +86,13 @@
 
 **As** any User (authenticated or not authenticated)  
 **I want** to be able to **Export-as-PDF** on any recipes appropriately shown in the Recipes view  
-**So that** I can download a PDF version of the selected recipe  
+**So that** I can download a PDF version of the selected recipe (see file `./subfeature-4-1-pdf-export.md`)  
 
 **Priority:** P3  
 **Independent test:** Each entry exposes Export-as-PDF in all states of interaction on this view; picking Export-as-PDF downloads a PDF containing the Recipe name, its description, its serving number, its completion time (in minutes), its list of ingredients, and all its steps/instructions.  
 **Acceptance scenarios:** see ### US-4.8 under Acceptance Criteria  
 
-### US-4.9: Manage Recipe List
+### US-4.9: Delete Recipe
 
 **As a** signed-in user  
 **I want to** be able to delete my recipes  
@@ -341,6 +341,13 @@ Replaces the Feature 2 placeholder home page. **Single Vue view** (`Dashboard.vu
 - **And** the `Add Recipe` modal closes  
 - **And** the list of Recipe cards refreshes without the window/page refreshing  
 
+#### Scenario: Interacting with modal buttons
+
+- **Given** I am viewing the `Add Recipe` modal  
+- **When** I interact with anything outside the `Add Recipe` modal  
+- **Then** the `Add Recipe` modal bounces once to enforce that it must continue being interacted with  
+- **And** the `Add Recipe` modal MUST not close unless the `CLOSE` button is interacted with  
+
 ### US-4.2: View Recipes
 
 #### Scenario: {What is happening or has happend}
@@ -420,23 +427,39 @@ Replaces the Feature 2 placeholder home page. **Single Vue view** (`Dashboard.vu
 
 ### US-4.9: Manage Recipe List
 
-#### Scenario: {What is happening or has happend}
+#### Scenario: export-to-pdf icon selected
 
-- **Given** {Where are you on the website?}
-- **When** {Main action?}
-- **And** {What additional action did you take?}
-- **Then** {Website response}
-- **And** {additional response}
-- **And**  
+- **Given** I am a signed-in user viewing my list of owned recipes  
+- **When** I select the `Export-as-PDF` icon  
+- **Then** a PDF file is generated via [Subfeature 4.1 -- pdf-export](subfeature-4-1-pdf-export.md) information  
+- **And** a file-picker dialog opens to download this generated PDF to my computer  
+- **And** this file's default name is `recipeReport.pdf`  
+- **And** the browser/OS handles the rest
 
-### US-4.10: Manage Recipe List
+#### Scenario: export-to-pdf icon selected
 
-#### Scenario: {What is happening or has happend}
+- **Given** I am a signed-in user viewing my list of owned recipes  
+- **When** I select the `Export-as-PDF` icon  
+- **And** I cancel the operation while the file-picker dialog is open/active  
+- **Then** the PDF file is not saved to my computer  
+- **And** the PDF file is discarded from the app  
 
-- **Given** {Where are you on the website?}
-- **When** {Main action?}
-- **And** {What additional action did you take?}
-- **Then** {Website response}
-- **And** {additional response}
-- **And**  
+---
 
+## Out of Scope
+
+*   Steps and Ingredients CRUD (see `feature-recipe-details-management.md`)
+*   Changes to user authentication
+*   Users choosing PDF-export formatting
+*   `403` responses (MUST avoid `403` responses)
+*   Drag-and-drop recipe card reordering
+*   Sharing recipes with other users
+
+---
+
+## Delivered to Feature 5
+
+The following are intentionally deferred to the next feature spec:
+
+*   `edit recipe` screen/view via URI `/recipe/:id`
+*   `POST /recipeapi/recipes/:id`
