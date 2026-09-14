@@ -244,25 +244,21 @@ unpublished recipes.
 ## Screen Requirements
 
 ### [View: Application Dashboard] — route name `home`
-Replaces the Feature 1 placeholder home page. **Single Vue view** (`Dashboard.vue`) — no sidebar / main-panel split.
+Replaces the Feature 2 placeholder home page. **Single Vue view** (`Dashboard.vue`) — no sidebar / main-panel split.
 
-**Lists view (this feature)**
-*   Heading: **My Lists**
-*   Primary action: **+ New List** opens a `<v-dialog>` with a name `<v-text-field>` and **Create** / **Cancel**. Use class `oc-cta` on **Create** and **+ New List** (per [ui-style-system.mdc](../../.cursor/rules/ui-style-system.mdc)).
-*   Display owned lists as rows (e.g. `<v-list>` or table): each row shows the **list name** and icon actions:
-    *   **Edit** icon — opens rename `<v-dialog>` pre-filled with current name; **Save** / **Cancel**
-    *   **Delete** icon — opens confirmation `<v-dialog>`
-    *   *(Feature 3 adds an **Items** icon on each row — not in Feature 2)*
-*   Icon-only row actions use `size="small"` and accessible `aria-label`s (**Edit list**, **Delete list**).
-*   **Empty state:** **"No lists yet. Create your first list."** when the user has zero lists.
+**Recipes view (this feature)**
+*   Heading: **Recipes**
+*   Primary action: **+ New Recipe** opens a `<v-dialog>` with a name `<v-text-field>` and **Create** / **Cancel**. Use class `oc-cta` on **Create** and **+ New Recipe** (per [ui-style-system.mdc](../../.cursor/rules/ui-style-system.mdc)).
+*   Display owned recipes as cards (e.g. `<v-card>`): each row shows the **Recipe Name** and icon actions:
+    *   **PDF** icon — exports the selected recipe as a pdf file and opens a file picker window to save to a location
+    *   **Edit** icon — changes URI to `/recipe/:id` where `:id` is the recipeId of the selected card
+    *   **Delete** icon — sends a delete request to the `/recipeapi/recipes/:id` where `:id` is the recipeId of the selected card
+*   Icon-only row actions use `size="small"` and accessible `aria-label`s (**Export as PDF**, **Edit Recipe**, **Delete Recipe**).
+*   **Empty state:** **"No Recipes yet. Create your first Recipe."** when the user has zero lists.
 *   **Loading state:** skeleton or progress indicator while lists are fetching.
 *   **Error state:** `<v-alert type="error">` for API failures.
 
-**App chrome**
-*   Introduce `MenuBar` in this feature (not present in Feature 1): signed-in user's name and **Sign out**.
-*   `MenuBar` is hidden on login and register routes.
-
-**Implementation note:** one route/view for lists; list CRUD dialogs are child components or inline `<v-dialog>` blocks in `Dashboard.vue` unless the team splits presentational dialogs later.
+**Implementation note:** one route/view for recipes; recipe create and read dialogs are child components or inline `<v-dialog>` blocks in `Dashboard.vue` unless the team splits presentational dialogs later.
 
 ---
 
