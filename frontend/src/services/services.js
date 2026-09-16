@@ -1,4 +1,5 @@
 import axios from "axios";
+import router from "../router.js";
 
 var baseurl = "";
 if (import.meta.env.DEV) {
@@ -36,5 +37,18 @@ const apiClient = axios.create({
     return data;
   },
 });
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error.response?.status;
+    const url = String(error.config?.url || "");
+    if (status === 401 && !url.includes("login")) {
+      localStorage.removeItem("user");
+      router.push({ name: "login" });
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default apiClient;

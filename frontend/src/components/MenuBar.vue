@@ -15,14 +15,12 @@ onMounted(() => {
   user.value = JSON.parse(localStorage.getItem("user"));
 });
 
-function logout() {
-  UserServices.logoutUser()
-    .then((data) => {
-      console.log(data);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+async function logout() {
+  try {
+    await UserServices.logoutUser();
+  } catch (error) {
+    console.log(error);
+  }
   localStorage.removeItem("user");
   user.value = null;
   router.push({ name: "login" });

@@ -8,6 +8,10 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.DATE,
       allowNull: false,
     },
+    userId: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+    },
   });
 
   return Session;

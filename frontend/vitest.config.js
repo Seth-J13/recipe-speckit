@@ -1,12 +1,16 @@
 import { defineConfig } from "vitest/config";
 import vue from "@vitejs/plugin-vue";
 import vuetify from "vite-plugin-vuetify";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const root = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [vue(), vuetify({ autoImport: true })],
   resolve: {
     alias: {
-      "/oc_logo.png": "/Applications/XAMPP/xamppfiles/htdocs/recipe-speckit/frontend/public/oc_logo.png",
+      "/oc_logo.png": path.resolve(root, "tests/oc_logo.stub.js"),
     },
   },
   test: {
