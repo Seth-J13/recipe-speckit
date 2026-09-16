@@ -3,7 +3,7 @@
  * Spec: features/feature-2-sign-in-sign-out.md
  */
 import { flushPromises, mount } from "@vue/test-utils";
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createMemoryHistory } from "vue-router";
 import { createVuetify } from "vuetify";
 import * as components from "vuetify/components";
 import * as directives from "vuetify/directives";
@@ -38,7 +38,7 @@ const sessionUser = {
 
 function makeRouter() {
   return createRouter({
-    history: createWebHistory(),
+    history: createMemoryHistory(),
     routes: [
       { path: "/", name: "login", component: Login },
       { path: "/recipes", name: "recipes", component: { template: "<div>Recipes</div>" } },
@@ -104,6 +104,7 @@ describe("Feature 2 — Sign In & Sign Out", () => {
         .findAll("button")
         .filter((node) => node.text().includes("Create Account"));
       await createButtons[createButtons.length - 1].trigger("click");
+      await flushPromises();
       await flushPromises();
 
       expect(UserServices.addUser).toHaveBeenCalled();
