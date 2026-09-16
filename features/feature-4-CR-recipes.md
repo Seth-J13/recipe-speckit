@@ -417,6 +417,107 @@ Replaces the Feature 2 placeholder home page. **Single Vue view** (`Dashboard.vu
 - **Then** no requests are sent to the API
 - **And** the modal closes
 
+Each `### US-N.n` block under **Acceptance Criteria** owns the scenarios for that user story. One story may have many scenarios; do not mix scenarios from different stories under one heading.
+
+Every scenario must appear in the **Test Coverage Map** and have at least one automated test before the feature is done.
+
+---
+
+## Test traceability
+
+Tests must link back to this spec in three layers:
+
+```text
+feature-4-CR-recipes.md
+  └── US-4.1 — Add Recipe
+        └── Scenario: open add modal
+              └── frontend/tests/RecipeList.test.js → it("open add modal")
+```
+
+### File header
+
+Every Feature 4 test file starts with:
+
+```javascript
+/**
+ * Feature 4 — Create, Read, and Delete Recipes
+ * Spec: features/feature-4-CR-recipes.md
+ */
+```
+
+Harness-only files (`app.test.js`, `App.test.js`) are exempt — they verify the test setup, not product behavior.
+
+### Nested `describe` blocks
+
+```javascript
+describe('Feature 4 — Create, Read, and Delete Recipes', () => {
+  describe('US-4.1 — Add Recipe', () => {
+    it('open add modal', async () => {
+      /* … */
+    });
+    it('Add button confirms operation', async () => {
+      /* … */
+    });
+  });
+});
+```
+
+- **Outer `describe`** — feature name (matches spec title).
+- **Inner `describe`** — `US-4.n` + story title (matches AC `###` heading).
+- **`it` name** — exact Gherkin **Scenario** title from this spec.
+
+### Test Coverage Map
+
+The map is the authoritative index. Each Gherkin scenario below must have ≥1 matching `it` before this feature is done. API and ownership cases live in `backend/tests/recipes.test.js` (Jest + supertest). Recipes-view and card UI live in `frontend/tests/RecipeList.test.js` and `frontend/tests/RecipeCard.test.js` (Vitest).
+
+| Story  | Scenario                                 | Test file                                                            | Test name                                        |
+| ------ | ---------------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------ |
+| US-4.1 | open add modal                           | `frontend/tests/RecipeList.test.js`                                  | `it("open add modal")`                           |
+| US-4.1 | Serving/Time input field details         | `frontend/tests/RecipeList.test.js`                                  | `it("Serving/Time input field details")`         |
+| US-4.1 | Publish toggle                           | `frontend/tests/RecipeList.test.js`                                  | `it("Publish toggle")`                           |
+| US-4.1 | Close button cancels operation           | `frontend/tests/RecipeList.test.js`                                  | `it("Close button cancels operation")`           |
+| US-4.1 | Field validation                         | `frontend/tests/RecipeList.test.js`                                  | `it("Field validation")`                         |
+| US-4.1 | Add button confirms operation            | `frontend/tests/RecipeList.test.js`, `backend/tests/recipes.test.js` | `it("Add button confirms operation")`            |
+| US-4.1 | Enforce modal focus                      | `frontend/tests/RecipeList.test.js`                                  | `it("Enforce modal focus")`                      |
+| US-4.2 | See list (signed in)                     | `frontend/tests/RecipeList.test.js`, `backend/tests/recipes.test.js` | `it("See list (signed in)")`                     |
+| US-4.2 | See list (signed out)                    | `frontend/tests/RecipeList.test.js`, `backend/tests/recipes.test.js` | `it("See list (signed out)")`                    |
+| US-4.3 | Always-present recipe details            | `frontend/tests/RecipeCard.test.js`                                  | `it("Always-present recipe details")`            |
+| US-4.3 | Expanded recipe card                     | `frontend/tests/RecipeCard.test.js`                                  | `it("Expanded recipe card")`                     |
+| US-4.3 | Shrink recipe card                       | `frontend/tests/RecipeCard.test.js`                                  | `it("Shrink recipe card")`                       |
+| US-4.4 | Actions on Recipe Card (signed-in)       | `frontend/tests/RecipeCard.test.js`                                  | `it("Actions on Recipe Card (signed-in)")`       |
+| US-4.4 | Select edit icon                         | `frontend/tests/RecipeCard.test.js`                                  | `it("Select edit icon")`                         |
+| US-4.4 | Actions on Recipe Card (signed-out)      | `frontend/tests/RecipeCard.test.js`                                  | `it("Actions on Recipe Card (signed-out)")`      |
+| US-4.5 | export-to-pdf icon selected              | `frontend/tests/RecipeCard.test.js`                                  | `it("export-to-pdf icon selected")`              |
+| US-4.5 | cancel operation                         | `frontend/tests/RecipeCard.test.js`                                  | `it("cancel operation")`                         |
+| US-4.6 | user (signed-in) selected delete icon    | `frontend/tests/RecipeList.test.js`, `backend/tests/recipes.test.js` | `it("user (signed-in) selected delete icon")`    |
+| US-4.6 | user (signed-in) cancels deletion action | `frontend/tests/RecipeList.test.js`                                  | `it("user (signed-in) cancels deletion action")` |
+
+### Auditing coverage
+
+```bash
+# Find all tests for a story
+rg "US-4.1" features/ backend/tests frontend/tests
+
+# Find a scenario across spec and tests
+rg "open add modal" features/ backend/tests frontend/tests
+```
+
+Every `#### Scenario` in this spec must have ≥1 matching `it`. Every Feature 4 `it` must trace to a scenario.
+
+---
+
+## Definition of Done
+
+- [ ] Backend and frontend implemented on `feature/4-CR-recipes` per this spec (**FR-001**–**FR-014**): signed-in users create, view, export, and delete **owned** recipes on one recipes view; signed-out users see **published** recipes only; edit-recipe screen is **not** built here (Feature 5)
+- [ ] **SC-001**–**SC-005** met: every Gherkin scenario has a test; signed-in export/view/delete/create on one screen without other users’ unpublished data; signed-out export/view of all published recipes; `npm test` passes for recipe API and recipes-view tests
+- [ ] All mapped tests pass (`npm test`): `backend/tests/recipes.test.js`, `frontend/tests/RecipeList.test.js`, `frontend/tests/RecipeCard.test.js`
+- [ ] Test Coverage Map complete — every `#### Scenario` under US-4.1–US-4.6 has a matching `it("…")` with the exact scenario title
+- [ ] `features/reference/data-model.md` updated with the `recipes` table (`name`, `description`, `servings`, `time`, `isPublished`, `userId`)
+- [ ] `features/reference/api.md` updated with `/recipeapi/recipes` and `/recipeapi/recipes/:id` (GET public published reads; POST/PUT/DELETE and `GET /recipes/user/:userId` require authenticate; create/error payloads)
+- [ ] `features/reference/behavior.md` updated with published vs unpublished visibility, owner-only writes, `404` (never `403`) for unowned or unpublished cross-user access, alphabetical name order, and which card actions show signed-in vs signed-out
+- [ ] README Feature catalog has a Feature 4 row (`features/feature-4-CR-recipes.md`, `feature/4-CR-recipes`)
+- [ ] Out of Scope respected: no steps/ingredients CRUD, no PDF format picker, no recipe sharing, no `/recipe/:id` edit view
+
 ---
 
 ## Out of Scope
