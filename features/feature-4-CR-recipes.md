@@ -1,11 +1,11 @@
 # Feature: Create, Read, and Delete Recipes
 
-**Feature ID:** 4
-**Branch pattern:** `feature/4-CR-recipes`
-**Status:** Draft
-**Created:** 2026-09-12
-**Input:** Signed-in users manage private named recipes on one dashboard view; new recipes are added in a dialogue; signed-out users see published, un-editable recipes
-**Depends on:** [Feature 1 -- Menu Bar](feature-1-menu-bar.md), [Feature 2 -- User Authentication](feature-2-user-auth.md) <-- (omit if none)
+**Feature ID:** 4  
+**Branch pattern:** `feature/4-CR-recipes`  
+**Status:** Draft  
+**Created:** 2026-09-12  
+**Input:** Signed-in users manage private named recipes on one dashboard view; new recipes are added in a dialogue; signed-out users see published, un-editable recipes  
+**Depends on:** [Feature 1 -- Menu Bar](feature-1-menu-bar.md), [Feature 2 -- User Authentication](feature-2-user-auth.md) <-- (omit if none)  
 **Related:** `features/references...`, [ADR-NNNN](../docs/adr/NNNN-title.md) <-- optional
 
 ---
@@ -24,9 +24,9 @@
 
 ### US-4.2: View Recipes
 
-**As a** signed in User  
-**I want to** see a list of ONLY published and unpublished recipes **owned by me** on one screen  
-**So that** I can see what recipes I have
+**As** any user  
+**I want** my authentication state to determine what recipes I can see in the recipe list view
+**So that** I can only see the recipes I'm allowed to see
 
 **Priority:** P1  
 **Independent test:** Dashboard loads a single list of recipes (no sidebar split), each recipe belongs to one card  
@@ -34,9 +34,9 @@
 
 ### US-4.3: See Recipe Details
 
-**As a** signed in User  
-**I want to** see the details of a recipe like **Name**, **Servings**, **Time to make (in minutes)**, **Actions**  
-**So that** I can read them without changing screens
+**As** any user  
+**I want to** see the details of a recipe like **Name**, **Servings**, and **Time to make (in minutes)**  
+**So that** I can read/manage them without changing screens
 
 **Priority:** P1
 **Independent test:** Card shows bolded details from **I want to** by default, expands to show **Ingredients** and **Steps** when interacted  
@@ -44,55 +44,25 @@
 
 ### US-4.4: Manage Recipe List
 
-**As a** signed in User  
-**I want** each Recipe to show **Export-as-PDF**, **Edit**, and **Delete** actions  
+**As** any user  
+**I want** each Recipe to show an **Actions** row containing the **Export-as-PDF**, **Edit**, and **Delete** actions depending on my authentication state
 **So that** I can make changes to my recipe in another view
 
 **Priority:** P2  
-**Independent test:** Each entry exposes Export-as-PDF, Edit, and Delete actions in all states of interaction in this Recipes view  
+**Independent test:** Each entry exposes Export-as-PDF, Edit, and Delete actions in both default and expanded states of interaction in this Recipes view  
 **Acceptance scenarios:** see ### US-4.4 under Acceptance Criteria
 
-### US-4.5: Private Recipes Only
-
-**As an** signed-in user  
-**I want** my unpublished recipes visible only to me  
-**So that** other users cannot read or modify my unpublished recipes
-
-**Priority:** P1
-**Independent test:** Cross-user unpublished-recipe access returns 404; GET /recipes/user/ never returns another user's unpublished recipes  
-**Acceptance scenarios:** see ### US-4.5 under Acceptance Criteria
-
-### US-4.6: Public Recipes
-
-**As a** guest with no account  
-**I want** everyone's published recipes to be visible to me  
-**So that** I can see public recipes
-
-**Priority:** P2  
-**Independent test:** Cross-user published-recipe access returns 200; GET /recipes/user/ only returns another user's published recipes  
-**Acceptance scenarios:** see ### US-4.6 under Acceptance Criteria
-
-### US-4.7: Public Recipe Details
-
-**As a** guest with no account  
-**I want to** see the details of a recipe like **Name**, **Servings**, **Time to make (in minutes)**, and **Export-as-PDF**  
-**So that** I can read them without changing screens
-
-**Priority:** P1
-**Independent test:** Card shows bolded details from **I want to** by default, expands to show **Ingredients** and **Steps** when interacted  
-**Acceptance scenarios:** see ### US-4.7 under Acceptance Criteria
-
-### US-4.8: Export Option
+### US-4.5: Export Option
 
 **As** any User (authenticated or not authenticated)  
 **I want** to be able to **Export-as-PDF** on any recipes appropriately shown in the Recipes view  
 **So that** I can download a PDF version of the selected recipe (see file `./subfeature-4-1-pdf-export.md`)
 
 **Priority:** P3  
-**Independent test:** Each entry exposes Export-as-PDF in all states of interaction on this view; picking Export-as-PDF downloads a PDF containing the Recipe name, its description, its serving number, its completion time (in minutes), its list of ingredients, and all its steps/instructions.  
-**Acceptance scenarios:** see ### US-4.8 under Acceptance Criteria
+**Independent test:** Each entry exposes Export-as-PDF in both expanded and default states of interaction on this view; picking Export-as-PDF downloads a PDF containing the Recipe name, its description, its serving number, its completion time (in minutes), its list of ingredients, and all its steps/instructions.  
+**Acceptance scenarios:** see ### US-4.5 under Acceptance Criteria
 
-### US-4.9: Delete Recipe
+### US-4.6: Delete Recipe
 
 **As a** signed-in user  
 **I want to** be able to delete my recipes  
@@ -100,7 +70,7 @@
 
 **Priority:** P2  
 **Independent test:** Select **Delete** icon, recipe is removed from database, recipe no longer appears in view  
-**Acceptance scenarios:** see ### US-4.9 under Acceptance Criteria
+**Acceptance scenarios:** see ### US-4.6 under Acceptance Criteria
 
 ---
 
@@ -237,7 +207,7 @@ Replaces the Feature 2 placeholder home page. **Single Vue view** (`Dashboard.vu
   - **PDF** icon — exports the selected recipe as a pdf file and opens a file picker window to save to a location
   - **Edit** icon — changes URI to `/recipe/:id` where `:id` is the recipeId of the selected card
   - **Delete** icon — sends a delete request to the `/recipeapi/recipes/:id` where `:id` is the recipeId of the selected card
-- Icon-only row actions use `size="small"` and accessible `aria-label`s (**Export as PDF**, **Edit Recipe**, **Delete Recipe**).
+- Icon-only row actions use `size="small"` and accessible `aria-label`s (**Export-as-PDF**, **Edit Recipe**, **Delete Recipe**).
 - **Empty state:** **"No Recipes yet. Create your first Recipe."** when the user has zero lists.
 - **Loading state:** skeleton or progress indicator while lists are fetching.
 - **Error state:** `<v-alert type="error">` for API failures.
@@ -248,7 +218,7 @@ Replaces the Feature 2 placeholder home page. **Single Vue view** (`Dashboard.vu
 
 ## Key Entities
 
-- **User**: registered account (name, email, username, role); owns future recipes.
+- **User**: registered account (firstname, lastname, email, password); owns future recipes.
 - **Session**: server-side record tying a JWT token to a user; expires after 24 hours.
 
 ---
@@ -283,15 +253,16 @@ Replaces the Feature 2 placeholder home page. **Single Vue view** (`Dashboard.vu
 - **And** I can see the title `Add Recipe` in the `Add Recipe` modal
 - **And** I can see a text input field called `Name`
 - **And** I can see an integer input field called `Number of Servings` whose default is 2
-- **And** I can see an integer input field called `Time to Make (in minutes)` whose default is 30
+- **And** I can see an integer input field called `Time to make (in minutes)` whose default is 30
 - **And** I can see a text area field called `Description`
 - **And** I can see a toggle switch labeled `Publish?` whose default is set to `No` (off)
 - **And** I can see `CLOSE` and `ADD RECIPE` buttons
+- **And** the view behind the modal is dimmed until the modal closes
 
 #### Scenario: Serving/Time input field details
 
 - **Given** I am viewing the `Add Recipe` modal
-- **When** I hover over or select the `Number of Servings` or `Time to Make (in minutes)` input fields
+- **When** I hover over or select the `Number of Servings` or `Time to make (in minutes)` input fields
 - **Then** I can either click up or down arrows to the right of the field to increment or decrement the value inside the field respectively or input an integer myself
 - **And** the incremented or decremented values reflect realtime in the values of the input field
 
@@ -315,7 +286,7 @@ Replaces the Feature 2 placeholder home page. **Single Vue view** (`Dashboard.vu
 
 - **Given** I am viewing the `Add Recipe` modal
 - **When** I press the `ADD RECIPE` button
-- **And** either the `Number of Servings` or the `Time to Make (in minutes)` integer field is empty
+- **And** either the `Number of Servings` or the `Time to make (in minutes)` integer field is empty
 - **Then** all the input fields are cleared
 - **And** the `Add Recipe` modal closes
 - **And** no requests are sent to the API
@@ -338,96 +309,113 @@ Replaces the Feature 2 placeholder home page. **Single Vue view** (`Dashboard.vu
 
 ### US-4.2: View Recipes
 
-#### Scenario: See list
+#### Scenario: See list (signed in)
 
 - **Given** I am a user who has successfully authenticated
 - **When** I view the recipes list view
-- **Then** a list of recipes cards created by me appears on screen
-- **And** none of the recipe cards overlap
+- **Then** I see ONLY a list of recipe cards I OWN
+- **And** I see NO recipes owned by anyone else
+- **And** I MUST NOT see published recipes owned by any user besides ones with my `userId`
+- **And** requests to `GET` unpublished recipes from any other `userId` returns `404 NOT FOUND` and MUST NOT return code `403`
+- **And** all the recipe cards MUST NEVER overlap
+
+#### Scenario: See list (signed out)
+
+- **Given** I am a user who has not authenticated
+- **When** I view the recipes list view
+- **Then** I see ONLY a list of recipe cards who are published
+- **And** I MUST NOT see any unpublished recipes
+- **And** requests to `GET` unpublished recipes returns `404 NOT FOUND` and MUST NOT return code `403`
+- **And** all the recipe cards MUST NEVER overlap
 
 ### US-4.3: See Recipe Details
 
-#### Scenario: {What is happening or has happend}
+#### Scenario: Always-present recipe details
 
-- **Given** {Where are you on the website?}
-- **When** {Main action?}
-- **And** {What additional action did you take?}
-- **Then** {Website response}
-- **And** {additional response}
-- **And**
+- **Given** I am any user (authenticated or unauthenticated)
+- **When** I view the recipes list view
+- **Then** all the recipes I see contain **Recipe Name**, **# Servings**, and **Time to make (in minutes)** information on the left inside the recipe card
+
+#### Scenario: Expanded recipe card
+
+- **Given** I am any user (authenticated or unauthenticated)
+- **When** I interact with a recipe card in its default state
+- **Then** the recipe card expands vertically downward to show its list of **Recipe Steps** and **Ingredients**
+- **And** the **Ingredients** form a list in the format '**[number of units] [unit name][`s` if > 1]** of [ingredient name] $[price per unit]/[unit name]'
+- **And** the **Steps** form a table with the columns **Step** (number), **Instruction**, and **Ingredients**
+- **And** the **Steps** table headers are shown even if there are no steps present
+- **And** the **Ingredients** list is shown before the **Steps** list
+
+#### Scenario: Shrink recipe card
+
+- **Given** I am any user (authenticated or unauthenticated)
+- **When** I interact with a recipe card in its expanded state
+- **Then** the recipe card shrinks vertically
+- **And** only its default information from scenario `Always-present recipe details` is shown
 
 ### US-4.4: Manage Recipe List
 
-#### Scenario: {What is happening or has happend}
+#### Scenario: Actions on Recipe Card (signed-in)
 
-- **Given** {Where are you on the website?}
-- **When** {Main action?}
-- **And** {What additional action did you take?}
-- **Then** {Website response}
-- **And** {additional response}
-- **And**
+- **Given** I am an authenticated user
+- **When** I view the recipes list view
+- **Then** **Export-as-PDF**, **Delete**, and **Edit** action icons are shown inside the recipe card
+- **And** they appear in both default and expanded states of interaction
+- **And** they are in a single row on the right side of the recipe card
 
-### US-4.5: Private Recipes Only
+#### Scenario: Select edit icon
 
-#### Scenario: {What is happening or has happend}
+- **Given** I am an authenticated user
+- **When** I select the **Edit** action icon on a card I own
+- **Then** I am taken to the `/recipe/:id` URI/view where `:id` is the id of the recipe (defer this view's details to Feature 5)
 
-- **Given** {Where are you on the website?}
-- **When** {Main action?}
-- **And** {What additional action did you take?}
-- **Then** {Website response}
-- **And** {additional response}
-- **And**
+#### Scenario: Actions on Recipe Card (signed-out)
 
-### US-4.6: Public Recipes
+- **Given** I am an unauthenticated user
+- **When** I view the recipes list view
+- **Then** only the **Export-as-PDF** action icon is shown inside the recipe card
+- **And** it appears in both default and expanded states of interaction
+- **And** it is on the right side of the recipe card
 
-#### Scenario: {What is happening or has happend}
-
-- **Given** {Where are you on the website?}
-- **When** {Main action?}
-- **And** {What additional action did you take?}
-- **Then** {Website response}
-- **And** {additional response}
-- **And**
-
-### US-4.7: Public Recipe Details
-
-#### Scenario: {What is happening or has happend}
-
-- **Given** {Where are you on the website?}
-- **When** {Main action?}
-- **And** {What additional action did you take?}
-- **Then** {Website response}
-- **And** {additional response}
-- **And**
-
-### US-4.8: Export Option
+### US-4.5: Export Option
 
 #### Scenario: export-to-pdf icon selected
 
 - **Given** I am a signed-in user viewing my list of owned recipes
-- **When** I select the `Export-as-PDF` icon
+- **When** I select the **Export-as-PDF** icon
 - **Then** a PDF file is generated via [story 4.9 -- pdf-export](story-4-9-pdf-export.md) information
 - **And** a file-picker dialog opens to download this generated PDF to my computer
 - **And** this file's default name is `recipeReport.pdf`
+- **And** the view behind the file-picker is dimmed until the file-picker closes
 - **And** the browser/OS handles the rest
 
 #### Scenario: cancel operation
 
 - **Given** I am a signed-in user viewing my list of owned recipes
-- **When** I select the `Export-as-PDF` icon
+- **When** I select the **Export-as-PDF** icon
 - **And** I cancel the operation while the file-picker dialog is open/active
 - **Then** the PDF file is not saved to my computer
 - **And** the PDF file is discarded from the app
+- **And** the **Export-as-PDF** option is still present in the recipe card
 
-### US-4.9: Delete Recipe
+### US-4.6: Delete Recipe
 
-#### Scenario: signed-in user selected delete icon
+#### Scenario: user (signed-in) selected delete icon
 
-- **Given** I am viewing the recipe list I own
+- **Given** I am a user (authenticated)
+- **And** I am viewing the recipe list I own
 - **When** I select the delete icon of a recipe I own
-- **Then** the recipe I selected gets deleted from the database
-- **And** it doesn't appear in the list anymore
-- **And** the list soft-refreshes
+- **Then** a modal appears in the center of the screen asking for confirmation for the deletion action
+- **And** I see a **CANCEL** outline-button alongside a **DELETE** raised-button at the bottom-right of the modal
+- **And** the view behind the modal is dimmed until the modal closes
+
+#### Scenario: user (signed-in) cancels deletion action
+
+- **Given** I am viewing the delete confirmation modal
+- **When** I select the **CANCEL** outline-button
+- **Or** I interact with anything outside the deletion modal
+- **Then** no requests are sent to the API
+- **And** the modal closes
 
 ---
 
