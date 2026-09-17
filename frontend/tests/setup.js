@@ -1,3 +1,26 @@
+if (!window.CSS) {
+  window.CSS = { supports: () => false, escape: (value) => value };
+} else if (!window.CSS.supports) {
+  window.CSS.supports = () => false;
+}
+
+window.matchMedia =
+  window.matchMedia ||
+  function matchMedia() {
+    return {
+      matches: false,
+      media: "",
+      onchange: null,
+      addListener() {},
+      removeListener() {},
+      addEventListener() {},
+      removeEventListener() {},
+      dispatchEvent() {
+        return false;
+      },
+    };
+  };
+
 global.ResizeObserver = class ResizeObserver {
   observe() {}
   unobserve() {}

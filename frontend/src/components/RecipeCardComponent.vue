@@ -4,13 +4,16 @@ import { useRouter } from "vue-router";
 import RecipeIngredientServices from "../services/RecipeIngredientServices.js";
 import RecipeStepServices from "../services/RecipeStepServices";
 import RecipeReports from "../reports/RecipeReports.js";
+import RecipeServices from "../services/RecipeServices.js";
 
 const router = useRouter();
+const emit = defineEmits(["deletedList"]);
 
 const showDetails = ref(false);
+const isDelete = ref(false);
 const recipeIngredients = ref([]);
 const recipeSteps = ref([]);
-const user = ref(null);
+const user = ref(JSON.parse(localStorage.getItem("user")));
 
 const props = defineProps({
   recipe: {
@@ -21,7 +24,6 @@ const props = defineProps({
 onMounted(async () => {
   await getRecipeIngredients();
   await getRecipeSteps();
-  user.value = JSON.parse(localStorage.getItem("user"));
 });
 
 async function getRecipeIngredients() {
@@ -49,6 +51,25 @@ async function getRecipeSteps() {
 function navigateToEdit() {
   router.push({ name: "editRecipe", params: { id: props.recipe.id } });
 }
+
+function openDelete() {
+  isDelete.value = true;
+}
+
+function cancelDelete() {
+  isDelete.value = false;
+}
+
+async function confirmDelete() {
+  isDelete.value = false;
+  await RecipeServices.deleteRecipe(props.recipe.id)
+    .then(() => {
+      emit("deletedList");
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
 </script>
 
 <template>
@@ -70,18 +91,38 @@ function navigateToEdit() {
           </v-chip>
         </v-col>
         <v-col class="d-flex justify-end">
-          <v-icon
-            v-if="user !== null"
-            size="small"
+          <span
             icon="mdi-file-pdf-box"
             @click.stop="RecipeReports.generateRecipePDF(recipe)"
-          ></v-icon>
-          <v-icon
+          >
+            <v-icon
+              size="small"
+              icon="mdi-file-pdf-box"
+              aria-label="Export-as-PDF"
+            ></v-icon>
+          </span>
+          <span
             v-if="user !== null"
-            size="small"
             icon="mdi-pencil"
-            @click="navigateToEdit()"
-          ></v-icon>
+            @click.stop="navigateToEdit()"
+          >
+            <v-icon
+              size="small"
+              icon="mdi-pencil"
+              aria-label="Edit Recipe"
+            ></v-icon>
+          </span>
+          <span
+            v-if="user !== null"
+            icon="mdi-delete"
+            @click.stop="openDelete()"
+          >
+            <v-icon
+              size="small"
+              icon="mdi-delete"
+              aria-label="Delete Recipe"
+            ></v-icon>
+          </span>
         </v-col>
       </v-row>
     </v-card-title>
@@ -137,4 +178,27 @@ function navigateToEdit() {
       </v-card-text>
     </v-expand-transition>
   </v-card>
+  <v-dialog v-model="isDelete" width="500">
+    <v-card class="rounded-lg elevation-5">
+      <v-card-title class="headline mb-2">Confirm delete</v-card-title>
+      <v-card-text>
+        Delete {{ recipe.name }}? This cannot be undone.
+        <v-alert
+          v-if="recipe.isPublished"
+          type="warning"
+          density="compact"
+          class="mt-2"
+        >
+          This recipe is currently published.
+        </v-alert>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn variant="outlined" @click="cancelDelete()">CANCEL</v-btn>
+        <v-btn variant="elevated" color="error" @click="confirmDelete()"
+          >DELETE</v-btn
+        >
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>

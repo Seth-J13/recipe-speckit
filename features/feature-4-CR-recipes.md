@@ -5,8 +5,7 @@
 **Status:** Draft  
 **Created:** 2026-09-12  
 **Input:** Signed-in users manage private named recipes on one dashboard view; new recipes are added in a dialogue; signed-out users see published, un-editable recipes  
-**Depends on:** [Feature 1 -- Menu Bar](feature-1-menu-bar.md), [Feature 2 -- User Authentication](feature-2-user-auth.md) <-- (omit if none)  
-**Related:** `features/references...`, [ADR-NNNN](../docs/adr/NNNN-title.md) <-- optional
+**Depends on:** [Feature 1 -- Menu Bar](feature-1-menu-bar.md), [Feature 2 -- User Authentication](feature-2-sign-in-sign-out.md)
 
 ---
 
@@ -48,7 +47,7 @@
 **I want** each Recipe to show an **Actions** row containing the **Export-as-PDF**, **Edit**, and **Delete** actions depending on my authentication state
 **So that** I can make changes to my recipe in another view
 
-**Priority:** P2  
+**Priority:** P1  
 **Independent test:** Each entry exposes Export-as-PDF, Edit, and Delete actions in both default and expanded states of interaction in this Recipes view  
 **Acceptance scenarios:** see ### US-4.4 under Acceptance Criteria
 
@@ -56,9 +55,9 @@
 
 **As** any User (authenticated or not authenticated)  
 **I want** to be able to **Export-as-PDF** on any recipes appropriately shown in the Recipes view  
-**So that** I can download a PDF version of the selected recipe (see file `./subfeature-4-1-pdf-export.md`)
+**So that** I can download a PDF version of the selected recipe (see file [story 4-5 -- pdf](story-4-5-pdf-export.md))
 
-**Priority:** P3  
+**Priority:** P1  
 **Independent test:** Each entry exposes Export-as-PDF in both expanded and default states of interaction on this view; picking Export-as-PDF downloads a PDF containing the Recipe name, its description, its serving number, its completion time (in minutes), its list of ingredients, and all its steps/instructions.  
 **Acceptance scenarios:** see ### US-4.5 under Acceptance Criteria
 
@@ -68,7 +67,7 @@
 **I want to** be able to delete my recipes  
 **So that** I can remove unwanted recipes from my list
 
-**Priority:** P2  
+**Priority:** P3  
 **Independent test:** Select **Delete** icon, recipe is removed from database, recipe no longer appears in view  
 **Acceptance scenarios:** see ### US-4.6 under Acceptance Criteria
 
@@ -248,12 +247,12 @@ Replaces the Feature 2 placeholder home page. **Single Vue view** (`Dashboard.vu
 #### Scenario: open add modal
 
 - **Given** I am authenticated and am viewing the Recipes view
-- **When** I interact with the `NEW` button
-- **Then** The `Add Recipe` modal appears in the center of the screen
+- **When** I interact with the `Add` button
+- **Then** The `Add Recipe` modal appears
 - **And** I can see the title `Add Recipe` in the `Add Recipe` modal
 - **And** I can see a text input field called `Name`
 - **And** I can see an integer input field called `Number of Servings` whose default is 2
-- **And** I can see an integer input field called `Time to make (in minutes)` whose default is 30
+- **And** I can see an integer input field called `Time to Make (in minutes)` whose default is 30
 - **And** I can see a text area field called `Description`
 - **And** I can see a toggle switch labeled `Publish?` whose default is set to `No` (off)
 - **And** I can see `CLOSE` and `ADD RECIPE` buttons
@@ -280,7 +279,7 @@ Replaces the Feature 2 placeholder home page. **Single Vue view** (`Dashboard.vu
 - **When** I press the `CLOSE` button
 - **Then** all the input fields are cleared
 - **And** the `Add Recipe` modal closes
-- **And** no requests are sent to the API
+- **And** no create requests are sent to the API
 
 #### Scenario: Field validation
 
@@ -296,7 +295,7 @@ Replaces the Feature 2 placeholder home page. **Single Vue view** (`Dashboard.vu
 - **Given** I am viewing the `Add Recipe` modal
 - **When** I press the `ADD RECIPE` button
 - **And** all integer fields and text areas have valid input
-- **Then** a `PUT` request is sent to the API whose body contains the data from the `Add Recipe` modal and whose format follows the **Create recipe request body**
+- **Then** a `POST` request is sent to `/recipeapi/recipes` whose body contains the dialog fields plus `userId` where `userId` is `req.body.userId`
 - **And** the `Add Recipe` modal closes
 - **And** the list of Recipe cards refreshes without the window/page refreshing
 
@@ -313,20 +312,18 @@ Replaces the Feature 2 placeholder home page. **Single Vue view** (`Dashboard.vu
 
 - **Given** I am a user who has successfully authenticated
 - **When** I view the recipes list view
-- **Then** I see ONLY a list of recipe cards I OWN
-- **And** I see NO recipes owned by anyone else
-- **And** I MUST NOT see published recipes owned by any user besides ones with my `userId`
-- **And** requests to `GET` unpublished recipes from any other `userId` returns `404 NOT FOUND` and MUST NOT return code `403`
-- **And** all the recipe cards MUST NEVER overlap
+- **Then** the view calls `GET /recipeapi/recipes/user/:userId` for my id
+- **And** I see the recipe cards returned for that user
+- **And** I do not see names that were not in that response
 
 #### Scenario: See list (signed out)
 
 - **Given** I am a user who has not authenticated
 - **When** I view the recipes list view
-- **Then** I see ONLY a list of recipe cards who are published
-- **And** I MUST NOT see any unpublished recipes
-- **And** requests to `GET` unpublished recipes returns `404 NOT FOUND` and MUST NOT return code `403`
-- **And** all the recipe cards MUST NEVER overlap
+- **Then** the view calls `GET /recipeapi/recipes`
+- **And** I see only published recipe cards from that response
+- **And** I MUST NOT see unpublished recipe names
+- **And** the `Add` button is hidden
 
 ### US-4.3: See Recipe Details
 
@@ -373,17 +370,16 @@ Replaces the Feature 2 placeholder home page. **Single Vue view** (`Dashboard.vu
 
 - **Given** I am an unauthenticated user
 - **When** I view the recipes list view
-- **Then** only the **Export-as-PDF** action icon is shown inside the recipe card
-- **And** it appears in both default and expanded states of interaction
-- **And** it is on the right side of the recipe card
+- **Then** **Edit** and **Delete** action icons are hidden
+- **And** they stay hidden in both default and expanded states
 
 ### US-4.5: Export Option
 
 #### Scenario: export-to-pdf icon selected
 
-- **Given** I am a signed-in user viewing my list of owned recipes
-- **When** I select the **Export-as-PDF** icon
-- **Then** a PDF file is generated via [story 4.9 -- pdf-export](story-4-9-pdf-export.md) information
+- **Given** I am any user viewing the recipes list
+- **When** I select the **Export-as-PDF** icon of a recipe card
+- **Then** a PDF file is generated via [story 4.5 -- pdf-export](story-4-5-pdf-export.md) information
 - **And** a file-picker dialog opens to download this generated PDF to my computer
 - **And** this file's default name is `recipeReport.pdf`
 - **And** the view behind the file-picker is dimmed until the file-picker closes
@@ -391,8 +387,8 @@ Replaces the Feature 2 placeholder home page. **Single Vue view** (`Dashboard.vu
 
 #### Scenario: cancel operation
 
-- **Given** I am a signed-in user viewing my list of owned recipes
-- **When** I select the **Export-as-PDF** icon
+- **Given** I am any user viewing the recipes list
+- **When** I select the **Export-as-PDF** icon of a recipe card
 - **And** I cancel the operation while the file-picker dialog is open/active
 - **Then** the PDF file is not saved to my computer
 - **And** the PDF file is discarded from the app
@@ -400,7 +396,7 @@ Replaces the Feature 2 placeholder home page. **Single Vue view** (`Dashboard.vu
 
 ### US-4.6: Delete Recipe
 
-#### Scenario: user (signed-in) selected delete icon
+#### Scenario: user (signed-in) selects delete icon
 
 - **Given** I am a user (authenticated)
 - **And** I am viewing the recipe list I own
@@ -408,6 +404,25 @@ Replaces the Feature 2 placeholder home page. **Single Vue view** (`Dashboard.vu
 - **Then** a modal appears in the center of the screen asking for confirmation for the deletion action
 - **And** I see a **CANCEL** outline-button alongside a **DELETE** raised-button at the bottom-right of the modal
 - **And** the view behind the modal is dimmed until the modal closes
+
+#### Scenario: user selects delete on published recipe
+
+- **Given** I am a user (authenticated)
+- **And** I am viewing the recipe list I own
+- **When** I select the delete icon of a recipe I own
+- **And** the selected recipe is currently published
+- **Then** a modal appears in the center of the screen asking for confirmation for the deletion action
+- **And** a notice appears in the modal below the confirmation message reminding the user this recipe is currently published
+- **And** I see a **CANCEL** outline-button alongside a **DELETE** raised-button at the bottom-right of the modal
+- **And** the view behind the modal is dimmed until the modal closes
+
+#### Scenario: user (signed-in) confirm delete action
+
+- **Given** I am a user (authenticated)
+- **And** I am viewing the delete confirmation modal
+- **When** I select the **DELETE** raised-button
+- **Then** `DELETE /recipeapi/recipes/:id` sends to the backend removes the appropriate row
+- **And** the modal closes
 
 #### Scenario: user (signed-in) cancels deletion action
 
@@ -490,6 +505,8 @@ The map is the authoritative index. Each Gherkin scenario below must have ≥1 m
 | US-4.5 | export-to-pdf icon selected              | `frontend/tests/RecipeCard.test.js`                                  | `it("export-to-pdf icon selected")`              |
 | US-4.5 | cancel operation                         | `frontend/tests/RecipeCard.test.js`                                  | `it("cancel operation")`                         |
 | US-4.6 | user (signed-in) selected delete icon    | `frontend/tests/RecipeList.test.js`, `backend/tests/recipes.test.js` | `it("user (signed-in) selected delete icon")`    |
+| US-4.6 | user selects delete on published recipe  | `frontend/tests/RecipeList.test.js`                                  | `it("user selects delete on published recipe")`  |
+| US-4.6 | user (signed-in) confirm delete action   | `frontend/tests/RecipeList.test.js`, `backend/tests/recipes.test.js` | `it("user (signed-in) confirm delete action")`   |
 | US-4.6 | user (signed-in) cancels deletion action | `frontend/tests/RecipeList.test.js`                                  | `it("user (signed-in) cancels deletion action")` |
 
 ### Auditing coverage
@@ -508,15 +525,13 @@ Every `#### Scenario` in this spec must have ≥1 matching `it`. Every Feature 4
 
 ## Definition of Done
 
-- [ ] Backend and frontend implemented on `feature/4-CR-recipes` per this spec (**FR-001**–**FR-014**): signed-in users create, view, export, and delete **owned** recipes on one recipes view; signed-out users see **published** recipes only; edit-recipe screen is **not** built here (Feature 5)
-- [ ] **SC-001**–**SC-005** met: every Gherkin scenario has a test; signed-in export/view/delete/create on one screen without other users’ unpublished data; signed-out export/view of all published recipes; `npm test` passes for recipe API and recipes-view tests
-- [ ] All mapped tests pass (`npm test`): `backend/tests/recipes.test.js`, `frontend/tests/RecipeList.test.js`, `frontend/tests/RecipeCard.test.js`
-- [ ] Test Coverage Map complete — every `#### Scenario` under US-4.1–US-4.6 has a matching `it("…")` with the exact scenario title
-- [ ] `features/reference/data-model.md` updated with the `recipes` table (`name`, `description`, `servings`, `time`, `isPublished`, `userId`)
-- [ ] `features/reference/api.md` updated with `/recipeapi/recipes` and `/recipeapi/recipes/:id` (GET public published reads; POST/PUT/DELETE and `GET /recipes/user/:userId` require authenticate; create/error payloads)
-- [ ] `features/reference/behavior.md` updated with published vs unpublished visibility, owner-only writes, `404` (never `403`) for unowned or unpublished cross-user access, alphabetical name order, and which card actions show signed-in vs signed-out
-- [ ] README Feature catalog has a Feature 4 row (`features/feature-4-CR-recipes.md`, `feature/4-CR-recipes`)
-- [ ] Out of Scope respected: no steps/ingredients CRUD, no PDF format picker, no recipe sharing, no `/recipe/:id` edit view
+- [ ] Backend and frontend implemented per this spec (**FR-00N** satisfied)
+- [ ] **Success Criteria (SC-00N)** met
+- [ ] All mapped tests pass (`npm test`)
+- [ ] Test Coverage Map complete
+- [ ] `features/reference/data-model.md` updated (if schema changed)
+- [ ] `features/reference/api.md` updated (if API changed)
+- [ ] `features/reference/behavior.md` updated (if product rules changed)
 
 ---
 
