@@ -371,6 +371,18 @@ Each scenario above must map to at least one automated test.
 | US-1.6 | Successful Logout shows a notification | `frontend/tests/OperationNotifications.test.js` | `Successful Logout shows a notification` |
 | US-1.6 | Unsuccessful Logout shows a notification | `frontend/tests/OperationNotifications.test.js` | `Unsuccessful Logout shows a notification` |
 
+### Auditing coverage
+
+```bash
+# Find all tests for a story
+rg "US-1.1" features/ backend/tests frontend/tests
+
+# Find a scenario across spec and tests
+rg "User navigates to the Recipes page" features/ backend/tests frontend/tests
+```
+
+Every `#### Scenario` in this spec must have ≥1 matching `it`. Every Feature 1 `it` must trace to a scenario.
+
 ## Agent implementation request
 
 Copy when asking Cursor to implement this feature (`@` this file):
