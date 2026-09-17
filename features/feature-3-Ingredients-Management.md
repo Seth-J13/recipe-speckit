@@ -1,4 +1,4 @@
-# Feature: User Authentication & Session Management
+# Feature: Ingredients Management
 
 **Feature ID:** 3
 **Branch pattern:** `feature/3-Ingredients-Management`
@@ -178,28 +178,6 @@ Feature 1 establishes identity; Features 2–3 enforce per-user data boundaries.
 - **When** I the screen loads
 - **Then** I see all existing ingredients in a list regardless of who entered them.
 
-#### Scenario: {What is happening or has happend}
-
-- **Given** {Where are you on the website?}
-- **When** {Main action?}
-- **And** {What additional action did you take?}
-- **Then** {Website response}
-- **And** {additional response}
-- **And** 
-- **etc...** 
-
-
-## VVV Example AC (Change or Delete) VVV
-#### Scenario: User submits registration with missing email
-
-- **Given** I am on the registration page
-- **When** I leave the email field empty
-- **And** I submit the form
-- **Then** inline validation blocks the request
-- **And** I see the message **"Email is required."**
-- **And** no API request is sent
-## ^^^ (Change or Delete) ^^^
-
 ### US-3.2 — open add ingredient modal
 #### Scenario: open add ingredient modal
 **Given** I am on the ingredients view
@@ -279,3 +257,119 @@ Feature 1 establishes identity; Features 2–3 enforce per-user data boundaries.
 **And** a new ingredient row is not created
 
 ---
+
+## Test traceability
+
+Tests must link back to this spec in three layers:
+
+```text
+feature-3-Ingredients-Management.md
+  └── US-3.1 — view ingredients list
+        └── Scenario: view ingredients list
+              ├── frontend/tests/IngredientList.test.js → it("view ingredients list")
+              └── backend/tests/ingredients.test.js → it("view ingredients list")
+  └── US-3.2 — open add ingredient modal
+        └── Scenario: open add ingredient modal
+              └── frontend/tests/IngredientList.test.js → it("open add ingredient modal")
+  └── US-3.3 — enter name and price per unit
+        └── Scenario: enter name and price per unit
+              └── frontend/tests/IngredientList.test.js → it("enter name and price per unit")
+  └── US-3.4 — select unit from dropdown
+        └── Scenario: select unit from dropdown
+              └── frontend/tests/IngredientList.test.js → it("select unit from dropdown")
+  └── US-3.5 — cancel without saving
+        ├── Scenario: cancel add without saving
+        │     └── frontend/tests/IngredientList.test.js → it("cancel add without saving")
+        └── Scenario: cancel edit without saving
+              └── frontend/tests/IngredientList.test.js → it("cancel edit without saving")
+  └── US-3.6 — add ingredient with POST
+        └── Scenario: add ingredient with POST
+              ├── frontend/tests/IngredientList.test.js → it("add ingredient with POST")
+              └── backend/tests/ingredients.test.js → it("add ingredient with POST")
+  └── US-3.7 — open edit ingredient modal
+        └── Scenario: open edit ingredient modal
+              └── frontend/tests/IngredientList.test.js → it("open edit ingredient modal")
+  └── US-3.8 — update ingredient with PUT
+        └── Scenario: update ingredient with PUT
+              ├── frontend/tests/IngredientList.test.js → it("update ingredient with PUT")
+              └── backend/tests/ingredients.test.js → it("update ingredient with PUT")
+```
+
+### File header
+
+Every Feature 3 test file starts with:
+
+```javascript
+/**
+ * Feature 3 — Ingredients Management
+ * Spec: features/feature-3-Ingredients-Management.md
+ */
+```
+
+Harness-only files (`app.test.js`, `App.test.js`) are exempt — they verify the test setup, not product behavior.
+
+### Nested `describe` blocks
+
+```javascript
+describe("Feature 3 — Ingredients Management", () => {
+  describe("US-3.1 — view ingredients list", () => {
+    it("view ingredients list", async () => {
+      /* … */
+    });
+  });
+});
+```
+
+- **Outer `describe`** — feature name (matches spec title).
+- **Inner `describe`** — `US-3.n` + story title (matches AC `###` heading).
+- **`it` name** — exact Gherkin **Scenario** title from this spec.
+
+### Test Coverage Map
+
+The map is the authoritative index. Each Gherkin scenario below must have ≥1 matching `it` before this feature is done. Shared-catalog API cases live in `backend/tests/ingredients.test.js` (Jest + supertest). Ingredients table and add/edit modal UI live in `frontend/tests/IngredientList.test.js` (Vitest).
+
+| Story  | Scenario                      | Test file                                                                    | Test name                             |
+| ------ | ----------------------------- | ---------------------------------------------------------------------------- | ------------------------------------- |
+| US-3.1 | view ingredients list         | `frontend/tests/IngredientList.test.js`, `backend/tests/ingredients.test.js` | `it("view ingredients list")`         |
+| US-3.2 | open add ingredient modal     | `frontend/tests/IngredientList.test.js`                                      | `it("open add ingredient modal")`     |
+| US-3.3 | enter name and price per unit | `frontend/tests/IngredientList.test.js`                                      | `it("enter name and price per unit")` |
+| US-3.4 | select unit from dropdown     | `frontend/tests/IngredientList.test.js`                                      | `it("select unit from dropdown")`     |
+| US-3.5 | cancel add without saving     | `frontend/tests/IngredientList.test.js`                                      | `it("cancel add without saving")`     |
+| US-3.5 | cancel edit without saving    | `frontend/tests/IngredientList.test.js`                                      | `it("cancel edit without saving")`    |
+| US-3.6 | add ingredient with POST      | `frontend/tests/IngredientList.test.js`, `backend/tests/ingredients.test.js` | `it("add ingredient with POST")`      |
+| US-3.7 | open edit ingredient modal    | `frontend/tests/IngredientList.test.js`                                      | `it("open edit ingredient modal")`    |
+| US-3.8 | update ingredient with PUT    | `frontend/tests/IngredientList.test.js`, `backend/tests/ingredients.test.js` | `it("update ingredient with PUT")`    |
+
+### Auditing coverage
+
+```bash
+# Find all tests for a story
+rg "US-3.1" features/ backend/tests frontend/tests
+
+# Find a scenario across spec and tests
+rg "view ingredients list" features/ backend/tests frontend/tests
+```
+
+Every `#### Scenario` in this spec must have ≥1 matching `it`. Every Feature 3 `it` must trace to a scenario.
+
+---
+
+## Definition of Done
+
+- [ ] Backend and frontend implemented per this spec (**FR-00N** satisfied)
+- [ ] **Success Criteria (SC-00N)** met
+- [ ] All mapped tests pass (`npm test`)
+- [ ] Test Coverage Map complete
+- [ ] `features/reference/data-model.md` updated (if schema changed)
+- [ ] `features/reference/api.md` updated (if API changed)
+- [ ] `features/reference/behavior.md` updated (if product rules changed)
+
+---
+
+## Out of Scope
+
+- Menu bar navigation to the ingredients page (Feature 1)
+- Sign-in / sign-out flows (Feature 2)
+- Recipe edit page that lists available ingredients for a recipe
+- Recipe, recipe-step, and recipe-ingredient CRUD
+- PDF export
