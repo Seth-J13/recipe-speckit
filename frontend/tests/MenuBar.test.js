@@ -1,15 +1,20 @@
 /**
- * Feature 2 — Sign In & Sign Out
+ * Feature 1 — Menu Bar & User Navigation
+ * Spec: features/1-menu-bar.md
+ *
+ * Feature 2 — Sign In & Sign Out (MenuBar scenarios)
  * Spec: features/feature-2-sign-in-sign-out.md
  */
 import { flushPromises, mount } from "@vue/test-utils";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createRouter, createWebHistory } from "vue-router";
 import { createVuetify } from "vuetify";
 import * as components from "vuetify/components";
 import * as directives from "vuetify/directives";
-import { vi } from "vitest";
 import MenuBar from "../src/components/MenuBar.vue";
 import UserServices from "../src/services/UserServices.js";
+import { useNotification } from "../src/composables/useNotification";
+import { findByText, mountShell, signedInUser } from "./helpers";
 
 vi.mock("../src/services/UserServices.js", () => ({
   default: {
@@ -118,21 +123,10 @@ describe("Feature 2 — Sign In & Sign Out", () => {
 
       expect(UserServices.logoutUser).toHaveBeenCalled();
       expect(localStorage.getItem("user")).toBeNull();
-      expect(router.currentRoute.value.name).toBe("login");
- * Feature 1 — Menu Bar & User Navigation
- * Spec: features/1-menu-bar.md
- */
-import { flushPromises } from "@vue/test-utils";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import UserServices from "../src/services/UserServices";
-import { useNotification } from "../src/composables/useNotification";
-import { findByText, mountShell, signedInUser } from "./helpers";
-
-vi.mock("../src/services/UserServices", () => ({
-  default: {
-    logoutUser: vi.fn(() => Promise.resolve({ data: { message: "Logged out successfully." } })),
-  },
-}));
+      expect(router.currentRoute.value.name).toBe("recipes");
+    });
+  });
+});
 
 describe("Feature 1 — Menu Bar & User Navigation", () => {
   let wrapper;
