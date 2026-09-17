@@ -8,14 +8,35 @@ import { useNotification } from "../composables/useNotification";
 const recipes = ref([]);
 const isAdd = ref(false);
 const user = ref(null);
-const { notifySuccess, notifyError } = useNotification();
-const newRecipe = ref({
-  name: "",
-  description: "",
-  servings: 2,
-  time: "30",
-  isPublished: false,
+const snackbar = ref({
+  value: false,
+  color: "",
+  text: "",
 });
+function emptyRecipe() {
+  return {
+    name: "",
+    description: "",
+    servings: 2,
+    time: 30,
+    isPublished: false,
+  };
+}
+
+const newRecipe = ref(emptyRecipe());
+
+function resetRecipe() {
+  newRecipe.value = emptyRecipe();
+}
+
+function isEmptyInteger(value) {
+  return (
+    value === "" ||
+    value === null ||
+    value === undefined ||
+    Number.isNaN(Number(value))
+  );
+}
 
 onMounted(async () => {
   await getRecipes();
@@ -46,16 +67,33 @@ async function getRecipes() {
 }
 
 async function addRecipe() {
+  if (
+    isEmptyInteger(newRecipe.value.servings) ||
+    isEmptyInteger(newRecipe.value.time)
+  ) {
+    closeAdd();
+    return;
+  }
+  const payload = {
+    name: newRecipe.value.name,
+    description: newRecipe.value.description,
+    servings: Number(newRecipe.value.servings),
+    time: Number(newRecipe.value.time),
+    isPublished: newRecipe.value.isPublished,
+    userId: user.value.id,
+  };
   isAdd.value = false;
-  newRecipe.value.userId = user.value.id;
-  await RecipeServices.addRecipe(newRecipe.value)
+  await RecipeServices.addRecipe(payload)
     .then(() => {
-      notifySuccess(`${newRecipe.value.name} added successfully!`);
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `${payload.name} added successfully!`;
     })
     .catch((error) => {
       console.log(error);
       notifyError(error.response.data.message);
     });
+  resetRecipe();
   await getRecipes();
 }
 
@@ -64,6 +102,7 @@ function openAdd() {
 }
 
 function closeAdd() {
+  resetRecipe();
   isAdd.value = false;
 }
 </script>
@@ -88,7 +127,7 @@ function closeAdd() {
         v-for="recipe in recipes"
         :key="recipe.id"
         :recipe="recipe"
-        @deletedList="getLists()"
+        @deletedList="getRecipes"
       />
 
       <v-dialog persistent v-model="isAdd" width="800">
