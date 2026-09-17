@@ -5,23 +5,25 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      name: "login",
-      component: () => import("./views/Login.vue"),
+      redirect: { name: "recipes" },
     },
     {
       path: "/recipes",
       name: "recipes",
+      meta: { title: "Recipes" },
       component: () => import("./views/RecipeList.vue"),
     },
     {
       path: "/recipe/:id",
       name: "editRecipe",
+      meta: { title: "Edit Recipe" },
       props: true,
       component: () => import("./views/EditRecipe.vue"),
     },
     {
       path: "/ingredients",
       name: "ingredients",
+      meta: { title: "Ingredients" },
       component: () => import("./views/IngredientList.vue"),
     },
   ],

@@ -13,6 +13,8 @@ const OCTheme = {
     accent: "#47121D",
     success: "#47121D",
     error: "#EE5044",
+    green: "#2E7D32",
+    red: "#C62828",
     teal: "#63BAC0",
     blue: "#196CA2",
     yellow: "#F8C545",
