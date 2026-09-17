@@ -40,7 +40,9 @@ export function createTestRouter(startPath = "/recipes") {
     routes: [
       {
         path: "/",
-        redirect: { name: "recipes" },
+        name: "login",
+        meta: { title: "Login" },
+        component: { template: "<div>Login page</div>" },
       },
       {
         path: "/recipes",

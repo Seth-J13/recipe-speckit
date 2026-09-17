@@ -36,8 +36,8 @@ Create Account remains Feature 1 and is not authorized by this snapshot’s Feat
 | Menu bar shows the OC logo and the current page title | Logo image + `route.meta.title` | Feature 1 |
 | Profile button shows initials in the top right; placeholder **JD** until a signed-in user exists | `MenuBar` avatar; `localStorage` `user` replaces placeholder | Feature 1 |
 | Profile card shows that user's full name, email, and **Logout** | Same local `user` object | Feature 1 |
-| App opens on Recipes with the menu bar; no login screen | `/` redirects to `/recipes`; login route not registered | Feature 1 |
-| **Logout** ends the local session on success, keeps the menu bar, and does not open a login screen | `POST /recipeapi/logout`; clear `user` only after success; stay on current page | Feature 1 |
+| Signed-in users hitting `/` are sent to Recipes; signed-out users see Login | `Login.vue` redirects when `localStorage` `user` exists | Feature 2 |
+| **Logout** invalidates the server session, clears `user`, and navigates to Login | `POST /recipeapi/logout`; clear `user` only after success; `router.push({ name: "login" })` | Feature 2 |
 | Success/failure notifications appear at the bottom of the screen, green for success and red for failure, with **Close** | `useNotification` + `AppNotification` | Feature 1 |
 | Notifications are reusable across pages (Create, Update, Delete, Logout) | Shared composable; one component in `App.vue` | Feature 1 |
 | Closing a notification does not undo the operation | `closeNotification` only removes the message | Feature 1 |

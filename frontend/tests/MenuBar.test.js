@@ -123,7 +123,7 @@ describe("Feature 2 — Sign In & Sign Out", () => {
 
       expect(UserServices.logoutUser).toHaveBeenCalled();
       expect(localStorage.getItem("user")).toBeNull();
-      expect(router.currentRoute.value.name).toBe("recipes");
+      expect(router.currentRoute.value.name).toBe("login");
     });
   });
 });
@@ -175,7 +175,7 @@ describe("Feature 1 — Menu Bar & User Navigation", () => {
     });
 
     it("Application opens on Recipes with the menu bar", async () => {
-      ({ wrapper, router } = await mountShell({ startPath: "/" }));
+      ({ wrapper, router } = await mountShell({ startPath: "/recipes" }));
       expect(router.currentRoute.value.name).toBe("recipes");
       expect(findByText(wrapper, "Recipes")).toBeTruthy();
       expect(wrapper.text()).not.toContain("Login page");
@@ -237,9 +237,7 @@ describe("Feature 1 — Menu Bar & User Navigation", () => {
       await findByText(wrapper, "Logout").trigger("click");
       await flushPromises();
       expect(localStorage.getItem("user")).toBeNull();
-      expect(router.currentRoute.value.name).toBe("recipes");
-      expect(wrapper.get('[aria-label="JD"]').exists()).toBe(true);
-      expect(findByText(wrapper, "Recipes")).toBeTruthy();
+      expect(router.currentRoute.value.name).toBe("login");
       expect(findByText(wrapper, "Login")).toBeUndefined();
     });
   });

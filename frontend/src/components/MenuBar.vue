@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import UserServices from "../services/UserServices";
 import { useNotification } from "../composables/useNotification";
 
@@ -11,6 +11,7 @@ const PLACEHOLDER_USER = {
 };
 
 const route = useRoute();
+const router = useRouter();
 const { notifySuccess, notifyError } = useNotification();
 
 const sessionUser = ref(null);
@@ -29,18 +30,21 @@ const fullName = computed(
   () => `${user.value.firstName} ${user.value.lastName}`
 );
 
+async function endSession() {
+  localStorage.removeItem("user");
+  sessionUser.value = null;
+  notifySuccess("Logged out successfully.");
+  await router.push({ name: "login" });
+}
+
 async function logout() {
   if (!sessionUser.value?.token) {
-    sessionUser.value = null;
-    localStorage.removeItem("user");
-    notifySuccess("Logged out successfully.");
+    await endSession();
     return;
   }
   try {
     await UserServices.logoutUser();
-    localStorage.removeItem("user");
-    sessionUser.value = null;
-    notifySuccess("Logged out successfully.");
+    await endSession();
   } catch (error) {
     notifyError(error?.response?.data?.message || "Logout failed.");
   }
