@@ -187,7 +187,7 @@ describe("Feature 1 — Menu Bar & User Navigation", () => {
       localStorage.setItem("user", JSON.stringify(signedInUser));
       IngredientServices.updateIngredient.mockResolvedValue({});
       ({ wrapper } = await mountView(IngredientList, "/ingredients"));
-      await wrapper.get(".mdi-pencil").trigger("click");
+      await findByText(wrapper, "Edit").trigger("click");
       await flushPromises();
       await findByText(wrapper, "Update Ingredient").trigger("click");
       await flushPromises();
@@ -201,7 +201,7 @@ describe("Feature 1 — Menu Bar & User Navigation", () => {
         apiError("Update failed.")
       );
       ({ wrapper } = await mountView(IngredientList, "/ingredients"));
-      await wrapper.get(".mdi-pencil").trigger("click");
+      await findByText(wrapper, "Edit").trigger("click");
       await flushPromises();
       await findByText(wrapper, "Update Ingredient").trigger("click");
       await flushPromises();

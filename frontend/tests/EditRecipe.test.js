@@ -13,6 +13,7 @@ import IngredientServices from "../src/services/IngredientServices.js";
 import RecipeIngredientServices from "../src/services/RecipeIngredientServices";
 import RecipeServices from "../src/services/RecipeServices";
 import RecipeStepServices from "../src/services/RecipeStepServices";
+import { useNotification } from "../src/composables/useNotification";
 
 vi.mock("vue-router", () => ({
   useRoute: () => ({ params: { id: "1" } }),
@@ -181,9 +182,15 @@ async function openEditStepRow(wrapper) {
   await nextTick();
 }
 
+function lastNotificationText() {
+  const items = useNotification().notifications.value;
+  return items[items.length - 1]?.text ?? "";
+}
+
 describe("Feature 5 — Recipe Details Management", () => {
   beforeEach(() => {
     document.body.innerHTML = "";
+    useNotification().resetNotifications();
     vi.spyOn(console, "log").mockImplementation(() => {});
     stubApis();
   });
@@ -309,7 +316,7 @@ describe("Feature 5 — Recipe Details Management", () => {
           id: 1,
         })
       );
-      expect(wrapper.vm.snackbar.text).toContain("updated successfully");
+      expect(lastNotificationText()).toContain("updated successfully");
       expect(wrapper.text()).toContain("Edit Recipe");
       wrapper.unmount();
     });
@@ -327,7 +334,7 @@ describe("Feature 5 — Recipe Details Management", () => {
       const wrapper = await mountPage();
       await clickNamedButton(wrapper, "Update Recipe");
       await flushPromises();
-      expect(wrapper.vm.snackbar.text).toContain(
+      expect(lastNotificationText()).toContain(
         "Invalid recipe recipeId, description, serving, time, or step"
       );
       expect(wrapper.text()).toContain("Edit Recipe");
@@ -417,7 +424,7 @@ describe("Feature 5 — Recipe Details Management", () => {
       await clickNamedButton(wrapper, "Add Ingredient");
       await flushPromises();
       expect(RecipeIngredientServices.addRecipeIngredient).toHaveBeenCalled();
-      expect(wrapper.vm.snackbar.text).toContain("Ingredient added successfully!");
+      expect(lastNotificationText()).toContain("Ingredient added successfully!");
       wrapper.unmount();
     });
 
@@ -436,7 +443,7 @@ describe("Feature 5 — Recipe Details Management", () => {
       wrapper.vm.selectedIngredient = flour;
       await clickNamedButton(wrapper, "Add Ingredient");
       await flushPromises();
-      expect(wrapper.vm.snackbar.text).toMatch(/Cannot add the ingredient|Could not add ingredient/i);
+      expect(lastNotificationText()).toMatch(/Cannot add the ingredient|Could not add ingredient/i);
       wrapper.unmount();
     });
 
@@ -512,7 +519,7 @@ describe("Feature 5 — Recipe Details Management", () => {
       await clickNamedButton(wrapper, "Update Ingredient");
       await flushPromises();
       expect(RecipeIngredientServices.updateRecipeIngredient).toHaveBeenCalled();
-      expect(wrapper.vm.snackbar.text).toMatch(/updated successfully/i);
+      expect(lastNotificationText()).toMatch(/updated successfully/i);
       wrapper.unmount();
     });
 
@@ -531,7 +538,7 @@ describe("Feature 5 — Recipe Details Management", () => {
       wrapper.vm.selectedIngredient = flour;
       await clickNamedButton(wrapper, "Update Ingredient");
       await flushPromises();
-      expect(wrapper.vm.snackbar.text).toMatch(/Cannot update the ingredient|Could not update ingredient/i);
+      expect(lastNotificationText()).toMatch(/Cannot update the ingredient|Could not update ingredient/i);
       wrapper.unmount();
     });
 
@@ -554,7 +561,7 @@ describe("Feature 5 — Recipe Details Management", () => {
       await wrapper.vm.deleteIngredient(wrapper.vm.recipeIngredients[0]);
       await flushPromises();
       expect(RecipeIngredientServices.deleteRecipeIngredient).toHaveBeenCalled();
-      expect(wrapper.vm.snackbar.text).toContain("Flour deleted successfully!");
+      expect(lastNotificationText()).toContain("Flour deleted successfully!");
       wrapper.unmount();
     });
 
@@ -568,7 +575,7 @@ describe("Feature 5 — Recipe Details Management", () => {
       const wrapper = await mountPage();
       await wrapper.vm.deleteIngredient(wrapper.vm.recipeIngredients[0]);
       await flushPromises();
-      expect(wrapper.vm.snackbar.text).toContain("Could not remove the Flour from Pancakes");
+      expect(lastNotificationText()).toContain("Could not remove the Flour from Pancakes");
       wrapper.unmount();
     });
   });
@@ -662,7 +669,7 @@ describe("Feature 5 — Recipe Details Management", () => {
       await clickNamedButton(wrapper, "Add Step");
       await flushPromises();
       expect(RecipeStepServices.addRecipeStep).toHaveBeenCalled();
-      expect(wrapper.vm.snackbar.text).toContain("Step added successfully!");
+      expect(lastNotificationText()).toContain("Step added successfully!");
       wrapper.unmount();
     });
 
@@ -677,8 +684,12 @@ describe("Feature 5 — Recipe Details Management", () => {
       wrapper.vm.openAddStep();
       await nextTick();
       wrapper.vm.newStep.instruction = "Cook";
-      await expect(wrapper.vm.addStep()).rejects.toThrow();
+      await wrapper.vm.addStep();
+      await flushPromises();
       expect(RecipeStepServices.addRecipeStep).toHaveBeenCalled();
+      expect(lastNotificationText()).toMatch(
+        /Cannot add the step|Could not add step/i
+      );
       wrapper.unmount();
     });
 
@@ -790,7 +801,7 @@ describe("Feature 5 — Recipe Details Management", () => {
       await clickNamedButton(wrapper, "Update Step");
       await flushPromises();
       expect(RecipeStepServices.updateRecipeStep).toHaveBeenCalled();
-      expect(wrapper.vm.snackbar.text).toContain("Step updated successfully!");
+      expect(lastNotificationText()).toContain("Step updated successfully!");
       wrapper.unmount();
     });
 
@@ -806,7 +817,7 @@ describe("Feature 5 — Recipe Details Management", () => {
       await nextTick();
       await clickNamedButton(wrapper, "Update Step");
       await flushPromises();
-      expect(wrapper.vm.snackbar.text).toMatch(/Cannot add the step|Could not update step/i);
+      expect(lastNotificationText()).toMatch(/Cannot add the step|Could not update step/i);
       wrapper.unmount();
     });
 

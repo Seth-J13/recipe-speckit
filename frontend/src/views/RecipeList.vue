@@ -8,11 +8,7 @@ import { useNotification } from "../composables/useNotification";
 const recipes = ref([]);
 const isAdd = ref(false);
 const user = ref(null);
-const snackbar = ref({
-  value: false,
-  color: "",
-  text: "",
-});
+const { notifySuccess, notifyError } = useNotification();
 function emptyRecipe() {
   return {
     name: "",
@@ -85,9 +81,7 @@ async function addRecipe() {
   isAdd.value = false;
   await RecipeServices.addRecipe(payload)
     .then(() => {
-      snackbar.value.value = true;
-      snackbar.value.color = "green";
-      snackbar.value.text = `${payload.name} added successfully!`;
+      notifySuccess(`${payload.name} added successfully!`);
     })
     .catch((error) => {
       console.log(error);
