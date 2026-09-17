@@ -5,20 +5,20 @@ import IngredientServices from "../services/IngredientServices.js";
 import { useNotification } from "../composables/useNotification";
 
 const units = [
-  "cup",
-  "gallon",
-  "gram",
-  "kilogram",
-  "liter",
-  "milliliter",
-  "ounce",
-  "pint",
-  "piece",
-  "pound",
-  "quart",
-  "tablespoon",
-  "teaspoon",
-  "unit",
+  "Cup",
+  "Gallon",
+  "Gram",
+  "Kilogram",
+  "Liter",
+  "Mili-liter",
+  "Ounce",
+  "Pint",
+  "Piece",
+  "Pound",
+  "Quart",
+  "Tablespoon",
+  "Teapsoon",
+  "Unit",
 ];
 
 const ingredients = ref([]);
@@ -121,7 +121,7 @@ function closeEdit() {
           <tr>
             <th class="text-left">Name</th>
             <th class="text-left">Unit</th>
-            <th class="text-left">Price Per Unit</th>
+            <th class="text-left">Price per Unit</th>
             <th class="text-left">Actions</th>
           </tr>
         </thead>
@@ -131,11 +131,9 @@ function closeEdit() {
             <td>{{ item.unit }}</td>
             <td>${{ item.pricePerUnit }}</td>
             <td>
-              <v-icon
-                size="small"
-                icon="mdi-pencil"
-                @click="openEdit(item)"
-              ></v-icon>
+              <v-btn size="small" variant="text" @click="openEdit(item)"
+                >Edit</v-btn
+              >
             </td>
           </tr>
         </tbody>
@@ -163,8 +161,8 @@ function closeEdit() {
             </v-select>
             <v-text-field
               v-model="newIngredient.pricePerUnit"
-              label="Price Per Unit"
-              type="number"
+              label="Price per Unit"
+              required
             ></v-text-field>
           </v-card-text>
           <v-card-actions>
