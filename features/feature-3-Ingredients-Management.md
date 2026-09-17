@@ -1,0 +1,375 @@
+# Feature: Ingredients Management
+
+**Feature ID:** 3
+**Branch pattern:** `feature/3-Ingredients-Management`
+**Status:** Ready
+**Created:** 2026-09-16
+**Input:** CRUD ingredients
+**Depends on:** [feature 1 -- menu bar](feature-1-menu-bar.md), [Feature 2 -- sign-in-sign-out](feature-2-sign-in-sign-out.md)
+
+---
+
+## User Stories
+
+
+### US-3.1: ingredients view...
+**As a** user 
+**I want to** see a list of ingredients
+**So that** I can see the ingredients
+
+**Priority:** P1
+**Independent test:** the list of ingredients is displayed in the middle of the screen, and none of the ingredients overlap. 
+**Acceptance scenarios:** see ### US-1.1 under Acceptance Criteria
+
+### US-3.2: Open the add-ingredient widget
+**As a** user
+**I want to** click an Add button on the ingredients table
+**So that** I can create a new ingredient without leaving the list
+
+**Priority:** P1
+**Independent test:** From the ingredients table, click Add and confirm a widget with a title "Add Ingredient" appears.
+**Acceptance scenarios:** see ### US-2.1 under Acceptance Criteria
+
+### US-3.3: Enter name and price in the add widget
+**As a** user
+**I want to** type an ingredient name and price per unit in the add modal
+**So that I** can record what the ingredient is called and what it costs
+
+**Priority:** P1
+**Independent test:** Open the Add Ingredient modal and confirm text inputs exist for name and price per unit, then type values into both.
+**Acceptance scenarios:** see ### US-3.1 under Acceptance Criteria
+
+### US-3.4: Choose a unit from a dropdown menu
+**As a** user
+**I want to** pick a unit from a dropdown of measuring units
+**So that** the ingredient saves its unit of measurment 
+
+**Priority:** P1
+**Independent test:** Open the Add Ingredient modal, expand the dropdown menu, and confirm the list contains Cup, Gallon, Gram, Kilogram, Liter, Mili-liter, Ounce, Pint, Piece, Pound, Quart, Tablespoon, Teapsoon, and Unit.
+**Acceptance scenarios:** see ### US-4.1 under Acceptance Criteria
+
+### US-3.5: Cancel without saving
+**As a** user
+**I want to** close the ingredient modal with the Close button
+**So that I** can leave an add or edit widget without creating or changing an ingredient
+
+**Priority:** P2
+**Independent test:** Open Add (or Edit), change fields, click Close (Cancel), and confirm the modal closes and the table is unchanged.
+**Acceptance scenarios:** see ### US-5.1 under Acceptance Criteria
+
+### US-3.6: Save a new ingredient to the database
+**As a** user
+**I want to** confirm the add ingredient by clicking the confirm button
+**So that** the new ingredient is created with a database request and appears in the ingredients table
+
+**Priority:** P1
+**Independent test:** Submit a valid new ingredient via Add Ingredient and confirm a POST is sent and the new row appears with the submitted Name, Unit, and Price per Unit.
+**Acceptance scenarios:** see ### US-6.1 under Acceptance Criteria
+
+### US-3.7: Open the edit-ingredient modal from Actions
+**As a** user
+**I want to** click Edit in a row’s Actions column and see the same form as add, titled Edit Ingredient, with Update Ingredient as the confirm button
+**So that** I can change an existing ingredient without a different workflow
+
+**Priority:** P1
+**Independent test:** Click Edit on an existing row and confirm a modal titled Edit Ingredient opens, fields match the add form and are prefilled from that row, and the confirm button label is Update Ingredient.
+**Acceptance scenarios:** see ### US-7.1 under Acceptance Criteria
+
+### US-3.8: Save ingredient changes into database
+**As a** user
+**I want to** confirm the edit modal with Update Ingredient
+**So that** the existing ingredient is updated with a PUT request and the table row shows the new values
+
+**Priority:** P1
+**Independent test:** Change an existing ingredient in the edit modal, click Update Ingredient, and confirm a PUT is sent and that table row reflects the new Name, Unit, and Price per Unit.
+**Acceptance scenarios:** see ### US-8.1 under Acceptance Criteria
+
+---
+
+## Requirements
+
+### Functional Requirements
+
+- **FR-001:** The system MUST display a Table of Ingredients with exactly these columns: Name, Unit, Price per Unit, and Actions.
+- **FR-002:** Users MUST be able to open an add card from an Add button at the top right of the table. The modal title MUST be Add Ingredient.
+- **FR-003**: The add/edit modal MUST provide text inputs for name and price per unit, and a dropdown for unit.
+- **FR-004:** The unit dropdown MUST list these values (varchar in the database; UI is still a dropdown): Cup, Gallon, Gram, Kilogram, Liter, Mili-liter, Ounce, Pint, Piece, Pound, Quart, Tablespoon, Teapsoon, Unit.
+- **FR-005**: Users MUST be able to dismiss the modal with a Close (Cancel) button. Dismissing MUST NOT create or update an ingredient.
+- **FR-006**: Confirming add with Add Ingredient MUST send a POST request and persist the new ingredient so it appears in the table.
+- **FR-007**: Each ingredient row MUST provide an Edit button under Actions. 
+- **FR-008**: The edit modal MUST be the same as add except the title MUST be Edit Ingredient and the confirm button MUST be Update Ingredient, with fields populated from the selected ingredient.
+- **FR-009**: Confirming edit with Update Ingredient MUST send a PUT request for the current ingredient and refresh that row. 
+- **FR-010**: The edit flow MUST NOT use POST to create a second ingredient.
+
+---
+
+
+
+## Assumptions
+
+- What already exists (eg. Feature 1 auth is on `dev`)
+- What you are deliberately not building yet
+
+Feature 1 menu bar is on 'dev'.
+Feature 2 auth is on 'dev'.
+
+DO NOT build a menu bar to navigate to the ingredients page. 
+DO NOT build a recipe edit page to display available ingredients. 
+
+## Edge Cases
+
+Empty required Field -> do not let the user submit if any field is empty. 
+Cross-User access -> all users should be able to access all ingredients. 
+Duplicate input -> If there are duplicates, the user should be able to delete whatever ingredients they want to have unique inputs again. 
+invalid input -> Do not let the user submit the ingredient if there is invalid input. 
+
+## Success Criteria
+
+- **SC-001**: Every Gherkin scenario has at least one automated test before merge
+- **SC-002**: user can create, read, update, delete the ingredients
+- **SC-003**: 'npm test' passes.
+
+---
+
+## Data Ownership & Isolation (foundation)
+
+Feature 1 establishes identity; Features 2–3 enforce per-user data boundaries.
+
+- Each user account is a separate tenant boundary for todo lists and items.
+- No API in this feature returns another user's profile or session.
+- Later features must never expose lists or todos across users — not in list responses, detail views, or error messages that confirm another user's resource exists.
+
+---
+
+## Key Entities
+
+**Ingredient**: an item (name, measurment, price per unit, created at, updated at); used in a recipe;
+
+---
+
+
+
+## Data Model Requirements
+### Look under ./backend/app/models/(file name).js
+- This shows the table you will need to model
+
+
+### `ingredients` table
+
+| Field      | Type        | Rules                              |
+| ---------- | ----------- | ---------------------------------- |
+| `id`       | INTEGER PK  | Auto-increment                     |
+| `unit`     | STRING      | Required                           |
+| `pricePerUnit`    | DECIMAL(10,2)      | Required                           |
+| `createdAt`    | DATETIME      | Required                 |
+| `updatedAt` | DATETIME | Required|
+
+---
+
+## Acceptance Criteria (Gherkin)
+
+
+
+### US-3.1 — view ingredients list
+
+#### Scenario: view ingredients list
+
+- **Given** I am on the ingredients view
+- **When** I the screen loads
+- **Then** I see all existing ingredients in a list regardless of who entered them.
+
+### US-3.2 — open add ingredient modal
+#### Scenario: open add ingredient modal
+**Given** I am on the ingredients view
+**When** I click the Add button at the top right of the table
+**Then** a modal (add card) is shown
+**And** the modal title is "Add Ingredient"
+**And** the ingredients table remains in the background behind the modal
+
+### US-3.3 — enter name and price per unit
+#### Scenario: enter name and price per unit
+**Given** I am on the ingredients view
+**And** the Add Ingredient modal is open
+**When** I type an ingredient name in the name text input
+**And** I type a price in the price per unit text input
+**Then** the name field shows the text I entered
+**And** the price per unit field shows the value I entered
+**And** both fields are text inputs (not the unit dropdown)
+
+### US-3.4 — select unit from dropdown
+#### Scenario: select unit from dropdown
+**Given** I am on the ingredients view
+**And** the Add Ingredient modal is open
+**When** I open the unit dropdown
+**Then** I see these options: Cup, Gallon, Gram, Kilogram, Liter, Mili-liter, Ounce, Pint, Piece, Pound, Quart, Tablespoon, Teapsoon, Unit
+**And** I can select one of those values as the ingredient’s unit
+**And** the selected unit is shown in the dropdown after I choose it
+
+### US-3.5 — cancel without saving
+#### Scenario: cancel add without saving
+**Given** I am on the ingredients view
+**And** the Add Ingredient modal is open
+**And** I have entered a name, unit, or price per unit
+**When** I click Close (Cancel)
+**Then** the modal closes
+**And** no API request is sent
+**And** the ingredients table is unchanged
+
+#### Scenario: cancel edit without saving
+**Given** I am on the ingredients view
+**And** the Edit Ingredient modal is open
+**And** I have changed the name, unit, or price per unit
+**When** I click Close (Cancel)
+**Then** the modal closes
+**And** no API request is sent
+**And** the ingredients table is unchanged
+
+### US-3.6 — add ingredient with POST
+#### Scenario: add ingredient with POST
+**Given** I am on the ingredients view
+**And** the Add Ingredient modal is open
+**And** I have entered a name, selected a unit, and entered a price per unit
+**When** I click the Add Ingredient confirm button
+**Then** a POST request is sent for the new ingredient
+**And** the modal closes
+**And** the ingredients table shows a new row with that name, unit, and price per unit
+**And** the new row includes an Edit button in the Actions column
+
+### US-3.7 — open edit ingredient modal
+#### Scenario: open edit ingredient modal
+**Given** I am on the ingredients view
+**And** at least one ingredient row is visible
+**When** I click Edit in that row’s Actions column
+**Then** a modal opens with the title "Edit Ingredient"
+**And** the form is the same as add: text inputs for name and price per unit, and a unit dropdown
+**And** those fields are filled with the selected ingredient’s current name, unit, and price per unit
+**And** the confirm button is labeled "Update Ingredient"
+
+### US-3.8 — update ingredient with PUT
+#### Scenario: update ingredient with PUT
+**Given** I am on the ingredients view
+**And** the Edit Ingredient modal is open for an existing ingredient
+**And** I have changed the name, unit, and/or price per unit
+**When** I click the Update Ingredient confirm button
+**Then** a PUT request is sent for that ingredient
+**And** the modal closes
+**And** the same table row shows the updated name, unit, and price per unit
+**And** a new ingredient row is not created
+
+---
+
+## Test traceability
+
+Tests must link back to this spec in three layers:
+
+```text
+feature-3-Ingredients-Management.md
+  └── US-3.1 — view ingredients list
+        └── Scenario: view ingredients list
+              ├── frontend/tests/IngredientList.test.js → it("view ingredients list")
+              └── backend/tests/ingredients.test.js → it("view ingredients list")
+  └── US-3.2 — open add ingredient modal
+        └── Scenario: open add ingredient modal
+              └── frontend/tests/IngredientList.test.js → it("open add ingredient modal")
+  └── US-3.3 — enter name and price per unit
+        └── Scenario: enter name and price per unit
+              └── frontend/tests/IngredientList.test.js → it("enter name and price per unit")
+  └── US-3.4 — select unit from dropdown
+        └── Scenario: select unit from dropdown
+              └── frontend/tests/IngredientList.test.js → it("select unit from dropdown")
+  └── US-3.5 — cancel without saving
+        ├── Scenario: cancel add without saving
+        │     └── frontend/tests/IngredientList.test.js → it("cancel add without saving")
+        └── Scenario: cancel edit without saving
+              └── frontend/tests/IngredientList.test.js → it("cancel edit without saving")
+  └── US-3.6 — add ingredient with POST
+        └── Scenario: add ingredient with POST
+              ├── frontend/tests/IngredientList.test.js → it("add ingredient with POST")
+              └── backend/tests/ingredients.test.js → it("add ingredient with POST")
+  └── US-3.7 — open edit ingredient modal
+        └── Scenario: open edit ingredient modal
+              └── frontend/tests/IngredientList.test.js → it("open edit ingredient modal")
+  └── US-3.8 — update ingredient with PUT
+        └── Scenario: update ingredient with PUT
+              ├── frontend/tests/IngredientList.test.js → it("update ingredient with PUT")
+              └── backend/tests/ingredients.test.js → it("update ingredient with PUT")
+```
+
+### File header
+
+Every Feature 3 test file starts with:
+
+```javascript
+/**
+ * Feature 3 — Ingredients Management
+ * Spec: features/feature-3-Ingredients-Management.md
+ */
+```
+
+Harness-only files (`app.test.js`, `App.test.js`) are exempt — they verify the test setup, not product behavior.
+
+### Nested `describe` blocks
+
+```javascript
+describe("Feature 3 — Ingredients Management", () => {
+  describe("US-3.1 — view ingredients list", () => {
+    it("view ingredients list", async () => {
+      /* … */
+    });
+  });
+});
+```
+
+- **Outer `describe`** — feature name (matches spec title).
+- **Inner `describe`** — `US-3.n` + story title (matches AC `###` heading).
+- **`it` name** — exact Gherkin **Scenario** title from this spec.
+
+### Test Coverage Map
+
+The map is the authoritative index. Each Gherkin scenario below must have ≥1 matching `it` before this feature is done. Shared-catalog API cases live in `backend/tests/ingredients.test.js` (Jest + supertest). Ingredients table and add/edit modal UI live in `frontend/tests/IngredientList.test.js` (Vitest).
+
+| Story  | Scenario                      | Test file                                                                    | Test name                             |
+| ------ | ----------------------------- | ---------------------------------------------------------------------------- | ------------------------------------- |
+| US-3.1 | view ingredients list         | `frontend/tests/IngredientList.test.js`, `backend/tests/ingredients.test.js` | `it("view ingredients list")`         |
+| US-3.2 | open add ingredient modal     | `frontend/tests/IngredientList.test.js`                                      | `it("open add ingredient modal")`     |
+| US-3.3 | enter name and price per unit | `frontend/tests/IngredientList.test.js`                                      | `it("enter name and price per unit")` |
+| US-3.4 | select unit from dropdown     | `frontend/tests/IngredientList.test.js`                                      | `it("select unit from dropdown")`     |
+| US-3.5 | cancel add without saving     | `frontend/tests/IngredientList.test.js`                                      | `it("cancel add without saving")`     |
+| US-3.5 | cancel edit without saving    | `frontend/tests/IngredientList.test.js`                                      | `it("cancel edit without saving")`    |
+| US-3.6 | add ingredient with POST      | `frontend/tests/IngredientList.test.js`, `backend/tests/ingredients.test.js` | `it("add ingredient with POST")`      |
+| US-3.7 | open edit ingredient modal    | `frontend/tests/IngredientList.test.js`                                      | `it("open edit ingredient modal")`    |
+| US-3.8 | update ingredient with PUT    | `frontend/tests/IngredientList.test.js`, `backend/tests/ingredients.test.js` | `it("update ingredient with PUT")`    |
+
+### Auditing coverage
+
+```bash
+# Find all tests for a story
+rg "US-3.1" features/ backend/tests frontend/tests
+
+# Find a scenario across spec and tests
+rg "view ingredients list" features/ backend/tests frontend/tests
+```
+
+Every `#### Scenario` in this spec must have ≥1 matching `it`. Every Feature 3 `it` must trace to a scenario.
+
+---
+
+## Definition of Done
+
+- [ ] Backend and frontend implemented per this spec (**FR-00N** satisfied)
+- [ ] **Success Criteria (SC-00N)** met
+- [ ] All mapped tests pass (`npm test`)
+- [ ] Test Coverage Map complete
+- [ ] `features/reference/data-model.md` updated (if schema changed)
+- [ ] `features/reference/api.md` updated (if API changed)
+- [ ] `features/reference/behavior.md` updated (if product rules changed)
+
+---
+
+## Out of Scope
+
+- Menu bar navigation to the ingredients page (Feature 1)
+- Sign-in / sign-out flows (Feature 2)
+- Recipe edit page that lists available ingredients for a recipe
+- Recipe, recipe-step, and recipe-ingredient CRUD
+- PDF export
