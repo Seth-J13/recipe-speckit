@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted } from "vue";
-import { ref, toRaw } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import UserServices from "../services/UserServices.js";
 
@@ -19,10 +19,9 @@ const user = ref({
 });
 
 onMounted(async () => {
-  localStorage.removeItem("user");
-  // if (localStorage.getItem("user") !== null) {
-  //   router.push({ name: "recipes" });
-  // }
+  if (localStorage.getItem("user") !== null) {
+    router.push({ name: "recipes" });
+  }
 });
 
 function navigateToRecipes() {
