@@ -5,6 +5,7 @@ import IngredientServices from "../services/IngredientServices.js";
 import RecipeIngredientServices from "../services/RecipeIngredientServices";
 import RecipeStepServices from "../services/RecipeStepServices";
 import RecipeServices from "../services/RecipeServices";
+import { useNotification } from "../composables/useNotification";
 
 const route = useRoute();
 
@@ -17,11 +18,7 @@ const isAddIngredient = ref(false);
 const isEditIngredient = ref(false);
 const isAddStep = ref(false);
 const isEditStep = ref(false);
-const snackbar = ref({
-  value: false,
-  color: "",
-  text: "",
-});
+const { notifySuccess, notifyError } = useNotification();
 const newStep = ref({
   id: undefined,
   stepNumber: undefined,
@@ -57,15 +54,11 @@ async function getRecipe() {
 async function updateRecipe() {
   await RecipeServices.updateRecipe(recipe.value.id, recipe.value)
     .then(() => {
-      snackbar.value.value = true;
-      snackbar.value.color = "green";
-      snackbar.value.text = `${recipe.value.name} updated successfully!`;
+      notifySuccess(`${recipe.value.name} updated successfully!`);
     })
     .catch((error) => {
       console.log(error);
-      snackbar.value.value = true;
-      snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      notifyError(error.response.data.message);
     });
   await getRecipe();
 }
@@ -77,9 +70,7 @@ async function getIngredients() {
     })
     .catch((error) => {
       console.log(error);
-      snackbar.value.value = true;
-      snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      notifyError(error.response.data.message);
     });
 }
 
@@ -100,15 +91,11 @@ async function addIngredient() {
   delete newIngredient.value.id;
   await RecipeIngredientServices.addRecipeIngredient(newIngredient.value)
     .then(() => {
-      snackbar.value.value = true;
-      snackbar.value.color = "green";
-      snackbar.value.text = `Ingredient added successfully!`;
+      notifySuccess(`Ingredient added successfully!`);
     })
     .catch((error) => {
       console.log(error);
-      snackbar.value.value = true;
-      snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      notifyError(error.response.data.message);
     });
   await getRecipeIngredients();
 }
@@ -121,15 +108,11 @@ async function updateIngredient() {
 
   await RecipeIngredientServices.updateRecipeIngredient(newIngredient.value)
     .then(() => {
-      snackbar.value.value = true;
-      snackbar.value.color = "green";
-      snackbar.value.text = `${selectedIngredient.value.name} updated successfully!`;
+      notifySuccess(`${selectedIngredient.value.name} updated successfully!`);
     })
     .catch((error) => {
       console.log(error);
-      snackbar.value.value = true;
-      snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      notifyError(error.response.data.message);
     });
   await getRecipeIngredients();
 }
@@ -137,15 +120,11 @@ async function updateIngredient() {
 async function deleteIngredient(ingredient) {
   await RecipeIngredientServices.deleteRecipeIngredient(ingredient)
     .then(() => {
-      snackbar.value.value = true;
-      snackbar.value.color = "green";
-      snackbar.value.text = `${ingredient.ingredient.name} deleted successfully!`;
+      notifySuccess(`${ingredient.ingredient.name} deleted successfully!`);
     })
     .catch((error) => {
       console.log(error);
-      snackbar.value.value = true;
-      snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      notifyError(error.response.data.message);
     });
   await getRecipeIngredients();
 }
@@ -183,15 +162,11 @@ async function addStep() {
   await RecipeStepServices.addRecipeStep(newStep.value)
     .then((data) => {
       newStep.value.id = data.data.id;
-      snackbar.value.value = true;
-      snackbar.value.color = "green";
-      snackbar.value.text = `Step added successfully!`;
+      notifySuccess(`Step added successfully!`);
     })
     .catch((error) => {
       console.log(error);
-      snackbar.value.value = true;
-      snackbar.value.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      notifyError(error.response.data.message);
     });
 
   await checkUpdateIngredient();
@@ -203,15 +178,11 @@ async function updateStep() {
   isEditStep.value = false;
   await RecipeStepServices.updateRecipeStep(newStep.value)
     .then(() => {
-      snackbar.value.value = true;
-      snackbar.value.color = "green";
-      snackbar.value.text = `Step updated successfully!`;
+      notifySuccess(`Step updated successfully!`);
     })
     .catch((error) => {
       console.log(error);
-      snackbar.value.value = true;
-      snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      notifyError(error.response.data.message);
     });
 
   await checkUpdateIngredient();
@@ -222,15 +193,11 @@ async function updateStep() {
 async function deleteStep(step) {
   await RecipeStepServices.deleteRecipeStep(step)
     .then(() => {
-      snackbar.value.value = true;
-      snackbar.value.color = "green";
-      snackbar.value.text = `Step deleted successfully!`;
+      notifySuccess(`Step deleted successfully!`);
     })
     .catch((error) => {
       console.log(error);
-      snackbar.value.value = true;
-      snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      notifyError(error.response.data.message);
     });
 
   await getRecipeSteps();
@@ -284,10 +251,6 @@ function closeAddStep() {
 
 function closeEditStep() {
   isEditStep.value = false;
-}
-
-function closeSnackBar() {
-  snackbar.value.value = false;
 }
 </script>
 
@@ -585,14 +548,5 @@ function closeSnackBar() {
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-snackbar v-model="snackbar.value" rounded="pill">
-      {{ snackbar.text }}
-
-      <template v-slot:actions>
-        <v-btn :color="snackbar.color" variant="text" @click="closeSnackBar()">
-          Close
-        </v-btn>
-      </template>
-    </v-snackbar>
   </v-container>
 </template>
